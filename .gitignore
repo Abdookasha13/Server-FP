@@ -1,0 +1,33 @@
+# --- أساسيات Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- بيئة التشغيل ---
+.env
+.env.local
+.env.*.local
+
+# --- Logs ---
+logs
+*.log
+*.log.*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# --- أنظمة تشغيل ---
+.DS_Store
+Thumbs.db
+
+# --- Build / Cache ---
+dist/
+build/
+.cache/
+.tmp/
+
+# --- اختبارات ---
+coverage/
+*.lcov
