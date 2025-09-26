@@ -3,19 +3,19 @@ const mongoose = require("mongoose");
 const EnrollmentSchema = new mongoose.Schema(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     course: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
       required: true,
     },
     enrolledAt: { type: Date, default: Date.now },
     progress: [
       {
-        lesson: { type: Schema.Types.ObjectId, ref: "Lesson" },
+        lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
         completed: Boolean,
         completedAt: Date,
       },
