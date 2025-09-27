@@ -23,7 +23,7 @@ const addCourse = async (req, res) => {
 
 const getAllCourses = async (req, res) => {
   try {
-    const course = await Course.find();
+    const course = await Course.find().populate("category instructor");
     res
       .status(200)
       .json(course.length > 0 ? course : { message: "No courses found" });
@@ -38,7 +38,9 @@ const getAllCourses = async (req, res) => {
 
 const getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id).populate(
+      "category instructor"
+    );
     if (!course) {
       return res.status(404).send("Course not found");
     }
