@@ -70,7 +70,7 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
 //------- get user by id --------
 /**
  * @openapi
- * /getUserById/:id:
+ * /getUserById/{id}:
  *   get:
  *     summary: Get a user by ID
  *     tags: [User]
@@ -92,7 +92,7 @@ userRoute.get("/getUserById/:id", userController.getUserById);
 //------- delete user by id --------
 /**
  * @openapi
- * /deleteUserById/:id:
+ * /deleteUserById/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]
