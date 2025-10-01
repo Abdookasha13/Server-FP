@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 //-----import user route---
 const userRoute = require("./Routes/userRoute");
+const courseRoute = require("./Routes/courseRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -12,6 +13,7 @@ const swaggerJsDoc = require("swagger-jsdoc");
 require("dotenv").config();
 
 app.use(express.json());
+
 //--------user cors to allow all origins (all methods) -------
 app.use(cors());
 
@@ -25,6 +27,7 @@ mongoose
 
 //----------user route------------
 app.use(userRoute);
+app.use(courseRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
