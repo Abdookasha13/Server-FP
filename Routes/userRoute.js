@@ -11,21 +11,36 @@ const userController = require("../Controllers/userController");
  *     tags: [User]
  *     responses:
  *       201:
- *         description: add user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *                 default: "ab@gmail.com"
- *               password:
- *                 type: string
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 68d83fa0f1cc292bf7ddc920
+ *                     name:
+ *                       type: string
+ *                       example: abdo
+ *                     email:
+ *                       type: string
+ *                       example: abdo@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: student
+ *                     createdAt:
+ *                       type: string
+ *                       example: 2025-09-27T19:48:48.487Z
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 userRoute.post("/register", userController.register);
 
@@ -37,20 +52,34 @@ userRoute.post("/register", userController.register);
  *     summary: Login user and get JWT
  *     tags: [User]
  *     responses:
- *       201:
- *         description: login
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 default: "ab@gmail.com"
- *               password:
- *                 type: string
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 68d83fa0f1cc292bf7ddc920
+ *                     name:
+ *                       type: string
+ *                       example: abdo
+ *                     email:
+ *                       type: string
+ *                       example: abdo@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: student
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 userRoute.post("/login", userController.login);
 

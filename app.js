@@ -1,9 +1,11 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-//-----import user route---
+//-----import routes---
 const userRoute = require("./Routes/userRoute");
 const courseRoute = require("./Routes/courseRoute");
+const lessonRoute = require("./Routes/lessonRoute");
+const enrollmentRoute = require("./Routes/enrollmentRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -25,9 +27,11 @@ mongoose
   .then(() => console.log("Database connected"))
   .catch((err) => console.error(err));
 
-//----------user route------------
+//----------routes------------
 app.use(userRoute);
 app.use(courseRoute);
+app.use(lessonRoute);
+app.use(enrollmentRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
@@ -37,14 +41,20 @@ const swaggerSpec = swaggerJsDoc({
       title: "E-learning",
       version: "1.0.0",
     },
-    servers: [
-      {
-        url: "http://localhost:1911",
+    servers: [{ url: "http://localhost:1911" }],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
       },
-    ],
+    },
   },
   apis: ["./app.js", "./Routes/*.js"],
 });
+
 app.use("/swaggerApis", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //----------------listen on port-------------

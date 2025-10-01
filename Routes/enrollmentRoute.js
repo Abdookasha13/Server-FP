@@ -1,23 +1,30 @@
 const express = require("express");
 const enrollmentRoute = express.Router();
 const enrollmentController = require("../Controllers/enrollmentController");
-
+const authenticate = require("../middleware/authenticationMiddleware");
 /**
  * @openapi
- * /enrollments:
+ * /enrollments/addEnrollment:
  *   post:
- *     summary: Enroll a user in a course
+ *     summary: Enroll a user in a course (requires token)
  *     tags: [Enrollment]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Enrollment created
+ *       401:
+ *         description: Unauthorized (No token provided)
  */
-enrollmentRoute.post("/", enrollmentController.createEnrollment);
+enrollmentRoute.post(
+  "/addEnrollment",
+  authenticate,
+  enrollmentController.createEnrollment
+);
 
-//------- get all enrollments --------
 /**
  * @openapi
- * /enrollments:
+ * /enrollments/getAllEnrollments:
  *   get:
  *     summary: Get all enrollments
  *     tags: [Enrollment]
@@ -25,12 +32,14 @@ enrollmentRoute.post("/", enrollmentController.createEnrollment);
  *       200:
  *         description: List of all enrollments
  */
-enrollmentRoute.get("/", enrollmentController.getAllEnrollments);
+enrollmentRoute.get(
+  "/getAllEnrollments",
+  enrollmentController.getAllEnrollments
+);
 
-//------- get enrollment by id --------
 /**
  * @openapi
- * /enrollments/{id}:
+ * /enrollments/getEnrollment/{id}:
  *   get:
  *     summary: Get an enrollment by ID
  *     tags: [Enrollment]
@@ -46,15 +55,19 @@ enrollmentRoute.get("/", enrollmentController.getAllEnrollments);
  *       404:
  *         description: Enrollment not found
  */
-enrollmentRoute.get("/:id", enrollmentController.getEnrollmentById);
+enrollmentRoute.get(
+  "/getEnrollment/:id",
+  enrollmentController.getEnrollmentById
+);
 
-//------- update enrollment --------
 /**
  * @openapi
- * /enrollments/{id}:
+ * /enrollments/updateEnrollment/{id}:
  *   patch:
- *     summary: Update enrollment
+ *     summary: Update enrollment (requires token)
  *     tags: [Enrollment]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -67,15 +80,20 @@ enrollmentRoute.get("/:id", enrollmentController.getEnrollmentById);
  *       404:
  *         description: Enrollment not found
  */
-enrollmentRoute.patch("/:id", enrollmentController.updateEnrollment);
+enrollmentRoute.patch(
+  "/updateEnrollment/:id",
+  authenticate,
+  enrollmentController.updateEnrollment
+);
 
-//------- delete enrollment --------
 /**
  * @openapi
- * /enrollments/{id}:
+ * /enrollments/deleteEnrollment/{id}:
  *   delete:
- *     summary: Delete an enrollment by ID
+ *     summary: Delete an enrollment by ID (requires token)
  *     tags: [Enrollment]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -88,7 +106,10 @@ enrollmentRoute.patch("/:id", enrollmentController.updateEnrollment);
  *       404:
  *         description: Enrollment not found
  */
-enrollmentRoute.delete("/:id", enrollmentController.deleteEnrollmentById);
-
+enrollmentRoute.delete(
+  "/deleteEnrollment/:id",
+  authenticate,
+  enrollmentController.deleteEnrollmentById
+);
 
 module.exports = enrollmentRoute;

@@ -159,10 +159,11 @@ courseRoute.get("/courses/:id", courseCtrl.getCourseById);
  *         description: Course not found
  */
 courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
+
 /**
  * @openapi
  * /courses/{id}:
- *   put:
+ *   patch:
  *     summary: Update a course by ID
  *     tags: [Courses]
  *     parameters:
@@ -191,7 +192,6 @@ courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
  *               isFree:
  *                 type: boolean
  *                 example: false
- *
  *     responses:
  *       200:
  *         description: Course updated successfully
@@ -200,6 +200,6 @@ courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
  *       404:
  *         description: Course not found
  */
-courseRoute.put("/courses/:id", courseCtrl.updateCourse);
+courseRoute.patch("/courses/:id", courseCtrl.updateCourse);
 
 module.exports = courseRoute;
