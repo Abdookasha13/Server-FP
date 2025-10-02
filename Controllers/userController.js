@@ -18,7 +18,7 @@ function generateToken(user) {
 //------- register -----------
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -28,7 +28,7 @@ const register = async (req, res) => {
       return res.status(409).json({ message: "Email already exists" });
     }
 
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password, role });
     await user.save();
 
     const token = generateToken(user);

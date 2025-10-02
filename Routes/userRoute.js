@@ -9,6 +9,30 @@ const userController = require("../Controllers/userController");
  *   post:
  *     summary: Register a new user
  *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: abdo
+ *               email:
+ *                 type: string
+ *                 example: abdo@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *               role:
+ *                 type: string
+ *                 description: User role (optional, default is "student")
+ *                 example: student
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -21,23 +45,7 @@ const userController = require("../Controllers/userController");
  *                   type: string
  *                   example: User registered successfully
  *                 user:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 68d83fa0f1cc292bf7ddc920
- *                     name:
- *                       type: string
- *                       example: abdo
- *                     email:
- *                       type: string
- *                       example: abdo@gmail.com
- *                     role:
- *                       type: string
- *                       example: student
- *                     createdAt:
- *                       type: string
- *                       example: 2025-09-27T19:48:48.487Z
+ *                   $ref: '#/components/schemas/User'
  *                 token:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -51,6 +59,22 @@ userRoute.post("/register", userController.register);
  *   post:
  *     summary: Login user and get JWT
  *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: abc@gmail.com
+ *               password:
+ *                 type: string
+ *                 example: string
  *     responses:
  *       200:
  *         description: Login successful
@@ -63,20 +87,7 @@ userRoute.post("/register", userController.register);
  *                   type: string
  *                   example: Login successful
  *                 user:
- *                   type: object
- *                   properties:
- *                     _id:
- *                       type: string
- *                       example: 68d83fa0f1cc292bf7ddc920
- *                     name:
- *                       type: string
- *                       example: abdo
- *                     email:
- *                       type: string
- *                       example: abdo@gmail.com
- *                     role:
- *                       type: string
- *                       example: student
+ *                   $ref: '#/components/schemas/User'
  *                 token:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -90,6 +101,8 @@ userRoute.post("/login", userController.login);
  *   get:
  *     summary: Get all users
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: list of all users
@@ -103,6 +116,8 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
  *   get:
  *     summary: Get a user by ID
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -125,6 +140,8 @@ userRoute.get("/getUserById/:id", userController.getUserById);
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -146,6 +163,8 @@ userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
  *   patch:
  *     summary: Update user fields
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
