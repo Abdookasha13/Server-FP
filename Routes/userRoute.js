@@ -45,7 +45,20 @@ const userController = require("../Controllers/userController");
  *                   type: string
  *                   example: User registered successfully
  *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 65123abc456def7890
+ *                     name:
+ *                       type: string
+ *                       example: abdo
+ *                     email:
+ *                       type: string
+ *                       example: abdo@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: student
  *                 token:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -87,7 +100,16 @@ userRoute.post("/register", userController.register);
  *                   type: string
  *                   example: Login successful
  *                 user:
- *                   $ref: '#/components/schemas/User'
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
  *                 token:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -101,11 +123,24 @@ userRoute.post("/login", userController.login);
  *   get:
  *     summary: Get all users
  *     tags: [User]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: list of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   role:
+ *                     type: string
  */
 userRoute.get("/getAllUsers", userController.getAllUsers);
 
@@ -116,8 +151,6 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
  *   get:
  *     summary: Get a user by ID
  *     tags: [User]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -128,6 +161,19 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
  *     responses:
  *       200:
  *         description: User object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 role:
+ *                   type: string
  *       404:
  *         description: User not found
  */
@@ -140,8 +186,6 @@ userRoute.get("/getUserById/:id", userController.getUserById);
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -163,8 +207,6 @@ userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
  *   patch:
  *     summary: Update user fields
  *     tags: [User]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -185,6 +227,19 @@ userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
  *     responses:
  *       200:
  *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 role:
+ *                   type: string
  *       404:
  *         description: User not found
  */
