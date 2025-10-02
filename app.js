@@ -51,8 +51,13 @@ const swaggerSpec = swaggerJsDoc({
         },
       },
     },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ["./app.js", "./Routes/*.js"],
+  apis: [__dirname + "/Routes/*.js"],
 });
 
 app.use("/swaggerApis", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -1,3 +1,4 @@
+// Models/enrollmentModel.js
 const mongoose = require("mongoose");
 
 const EnrollmentSchema = new mongoose.Schema(
@@ -12,11 +13,10 @@ const EnrollmentSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
-    enrolledAt: { type: Date, default: Date.now },
     progress: [
       {
         lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
-        completed: Boolean,
+        completed: { type: Boolean, default: false },
         completedAt: Date,
       },
     ],
@@ -25,5 +25,8 @@ const EnrollmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// منع التسجيل المكرر على مستوى الـ DB
+EnrollmentSchema.index({ user: 1, course: 1 }, { unique: true });
 
 module.exports = mongoose.model("Enrollment", EnrollmentSchema);
