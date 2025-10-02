@@ -26,7 +26,6 @@ const EnrollmentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// منع التسجيل المكرر على مستوى الـ DB
 EnrollmentSchema.index({ user: 1, course: 1 }, { unique: true });
 
 module.exports = mongoose.model("Enrollment", EnrollmentSchema);
