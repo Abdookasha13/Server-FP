@@ -1,4 +1,6 @@
 const Course = require("../Models/courseModel");
+require("../Models/categoryModel")
+require("../Models/userModel")
 
 //add new course
 const addCourse = async (req, res) => {
@@ -23,7 +25,9 @@ const addCourse = async (req, res) => {
 
 const getAllCourses = async (req, res) => {
   try {
-    const course = await Course.find();
+    const course = await Course.find()
+    .populate("category", "name slug")      
+      .populate("instructor", "name email");
     res
       .status(200)
       .json(course.length > 0 ? course : { message: "No courses found" });
@@ -38,7 +42,9 @@ const getAllCourses = async (req, res) => {
 
 const getCourseById = async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findById(req.params.id)
+    .populate("category", "name slug")      
+      .populate("instructor", "name email")
     if (!course) {
       return res.status(404).send("Course not found");
     }
