@@ -6,6 +6,7 @@ const userRoute = require("./Routes/userRoute");
 const courseRoute = require("./Routes/courseRoute");
 const lessonRoute = require("./Routes/lessonRoute");
 const enrollmentRoute = require("./Routes/enrollmentRoute");
+const categoryRoute = require("./Routes/categoryRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -32,6 +33,7 @@ app.use(userRoute);
 app.use(courseRoute);
 app.use(lessonRoute);
 app.use(enrollmentRoute);
+app.use(categoryRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
