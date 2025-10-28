@@ -17,10 +17,14 @@ const EnrollmentSchema = new mongoose.Schema(
       {
         lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
         completed: { type: Boolean, default: false },
-        completedAt: Date,
+        completedAt: {
+          type: Date,
+          default: function () {
+            return this.completed ? new Date() : undefined;
+          },
+        },
       },
     ],
-    completed: { type: Boolean, default: false },
     certificateUrl: String,
   },
   { timestamps: true }

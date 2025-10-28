@@ -1,6 +1,8 @@
 const express = require("express");
 const lessonRoute = express.Router();
 const lessonController = require("../Controllers/lessonController");
+const authenticate = require("../middleware/authenticationMiddleware");
+const authoriz = require("../middleware/authorizationMiddleware");
 
 //------- Add Lesson --------
 /**
@@ -9,6 +11,8 @@ const lessonController = require("../Controllers/lessonController");
  *   post:
  *     summary: Create a new lesson
  *     tags: [Lesson]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Lesson created successfully
@@ -48,7 +52,13 @@ const lessonController = require("../Controllers/lessonController");
  *                 type: boolean
  *                 default: false
  */
-lessonRoute.post("/addLesson", lessonController.createLesson);
+// Only instructors or admins can add lessons
+lessonRoute.post(
+  "/addLesson",
+  authenticate,
+  authoriz("instructor", "admin"),
+  lessonController.createLesson
+);
 
 //------- Get All Lessons --------
 /**
@@ -96,6 +106,8 @@ lessonRoute.get("/getLesson/:id", lessonController.getLessonById);
  *   delete:
  *     summary: Delete a lesson by ID
  *     tags: [Lesson]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,7 +123,13 @@ lessonRoute.get("/getLesson/:id", lessonController.getLessonById);
  *       500:
  *         description: Server error
  */
-lessonRoute.delete("/deleteLesson/:id", lessonController.deleteLessonById);
+// Only instructors or admins can delete lessons
+lessonRoute.delete(
+  "/deleteLesson/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  lessonController.deleteLessonById
+);
 
 //------- Update Lesson --------
 /**
@@ -120,6 +138,8 @@ lessonRoute.delete("/deleteLesson/:id", lessonController.deleteLessonById);
  *   put:
  *     summary: Update lesson fields
  *     tags: [Lesson]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -159,7 +179,13 @@ lessonRoute.delete("/deleteLesson/:id", lessonController.deleteLessonById);
  *       404:
  *         description: Lesson not found
  */
-lessonRoute.put("/updateLesson/:id", lessonController.updateLesson);
+// Only instructors or admins can update lessons
+lessonRoute.put(
+  "/updateLesson/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  lessonController.updateLesson
+);
 
 //--------------Export Lesson Route--------
 module.exports = lessonRoute;

@@ -51,4 +51,11 @@ userSchema.methods.comparePassword = function (currentUserPassword) {
   return bcrypt.compare(currentUserPassword, this.password);
 };
 
+//--------------------delete password from any response----------
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
+
 module.exports = mongoose.model("User", userSchema);

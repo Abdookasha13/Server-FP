@@ -1,11 +1,21 @@
 const Course = require("../Models/courseModel");
-require("../Models/categoryModel")
-require("../Models/userModel")
+require("../Models/categoryModel");
+require("../Models/userModel");
 
-//add new course
+// add new course
 const addCourse = async (req, res) => {
   try {
-    const course = new Course(req.body);
+    //-------only instructors or admins can add courses-----------
+    if (
+      !req.user ||
+      (req.user.role !== "instructor" && req.user.role !== "admin")
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    //-----------ensure instructor is set from the authenticated user-----------
+    const data = { ...req.body, instructor: req.user.id };
+    const course = new Course(data);
     await course.save();
     res.status(201).json({ message: "Course added successfully!", course });
   } catch (err) {
@@ -22,11 +32,10 @@ const addCourse = async (req, res) => {
 };
 
 //get all courses
-
 const getAllCourses = async (req, res) => {
   try {
     const course = await Course.find()
-    .populate("category", "name slug")      
+      .populate("category", "name slug")
       .populate("instructor", "name email");
     res
       .status(200)
@@ -39,12 +48,11 @@ const getAllCourses = async (req, res) => {
 };
 
 //get course by id
-
 const getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
-    .populate("category", "name slug")      
-      .populate("instructor", "name email")
+      .populate("category", "name slug")
+      .populate("instructor", "name email");
     if (!course) {
       return res.status(404).send("Course not found");
     }
@@ -59,10 +67,19 @@ const getCourseById = async (req, res) => {
 //delete course by id
 const deleteCourse = async (req, res) => {
   try {
-    const course = await Course.findByIdAndDelete(req.params.id);
-    if (!course) {
-      return res.status(404).send("Course not found");
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).send("Course not found");
+
+    //------------only admin or the course owner (instructor) can delete------------
+    if (!req.user) return res.status(401).send("Unauthorized");
+    if (
+      req.user.role !== "admin" &&
+      course.instructor.toString() !== req.user.id
+    ) {
+      return res.status(403).send("Forbidden");
     }
+
+    await Course.findByIdAndDelete(req.params.id);
     res.status(200).send("Course deleted successfully!");
   } catch (err) {
     res
@@ -72,7 +89,6 @@ const deleteCourse = async (req, res) => {
 };
 
 //update course
-
 const updateCourse = async (req, res) => {
   const blockedFields = [
     "rating",
@@ -89,18 +105,26 @@ const updateCourse = async (req, res) => {
     blockedFields.includes(key)
   );
   try {
-    const course = await Course.findByIdAndUpdate(req.params.id, updates, {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).send("Course not found");
+
+    // Only admin or the course owner can update
+    if (!req.user) return res.status(401).send("Unauthorized");
+    if (
+      req.user.role !== "admin" &&
+      course.instructor.toString() !== req.user.id
+    ) {
+      return res.status(403).send("Forbidden");
+    }
+
+    const updated = await Course.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     });
-    if (!course) {
-      return res.status(404).send("Course not found");
-    }
     res.status(200).json({
       message: "Course updated successfully!",
-
       ignoredFields: ignoredFields.length > 0 ? ignoredFields : undefined,
-      course,
+      course: updated,
     });
   } catch (err) {
     res

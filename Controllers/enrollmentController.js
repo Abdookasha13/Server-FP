@@ -1,4 +1,3 @@
-// Controllers/enrollmentController.js
 const mongoose = require("mongoose");
 const Enrollment = require("../Models/enrollmentModel");
 
@@ -6,13 +5,18 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const createEnrollment = async (req, res) => {
   try {
-    const { user, course } = req.body;
-    if (!user || !course)
-      return res.status(400).json({ message: "User and Course are required" });
+    //------only authenticated students may create enrollments for themselves--------
+    //------the authentication middleware sets req.user (id + role)------------------
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    if (req.user.role !== "student")
+      return res.status(403).json({ message: "Only students can enroll" });
+
+    const { course } = req.body;
+    const user = req.user.id;
+    if (!course) return res.status(400).json({ message: "Course is required" });
     if (!isValidId(user) || !isValidId(course))
       return res.status(400).json({ message: "Invalid user or course id" });
 
-    // نعتمد الـ unique index + catch لرمز 11000 لتجنب race conditions
     const enrollment = new Enrollment({ user, course });
     await enrollment.save();
 
@@ -21,12 +25,10 @@ const createEnrollment = async (req, res) => {
       .populate("course", "title description")
       .populate("progress.lesson", "title");
 
-    res
-      .status(201)
-      .json({
-        message: "Enrollment created successfully",
-        enrollment: populated,
-      });
+    res.status(201).json({
+      message: "Enrollment created successfully",
+      enrollment: populated,
+    });
   } catch (err) {
     console.error("createEnrollment error:", err);
     if (err.code === 11000) {
@@ -79,7 +81,6 @@ const updateEnrollment = async (req, res) => {
     if (!isValidId(id))
       return res.status(400).json({ message: "Invalid enrollment id" });
 
-    // اسمح بتحديث الحقول المحددة فقط
     const allowed = ["progress", "completed", "certificateUrl"];
     const updates = {};
     for (const key of allowed) {
@@ -92,11 +93,9 @@ const updateEnrollment = async (req, res) => {
         return res.status(400).json({ message: "progress must be an array" });
       for (const p of updates.progress) {
         if (!p.lesson || !isValidId(p.lesson))
-          return res
-            .status(400)
-            .json({
-              message: "Each progress item must have a valid lesson id",
-            });
+          return res.status(400).json({
+            message: "Each progress item must have a valid lesson id",
+          });
         // normalize completed flag
         p.completed = !!p.completed;
         if (p.completed && !p.completedAt) p.completedAt = new Date();

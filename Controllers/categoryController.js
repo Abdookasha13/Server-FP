@@ -1,4 +1,5 @@
 const Category = require("../Models/categoryModel");
+const Course = require("../Models/courseModel");
 
 // جلب كل الكاتيجوريز
 getAllCategories = async (req, res) => {
@@ -25,7 +26,25 @@ getCategoryById = async (req, res) => {
 // إنشاء كاتيجوري جديد
 createCategory = async (req, res) => {
   try {
+    // Only instructors or admins can create categories
+    if (
+      !req.user ||
+      (req.user.role !== "instructor" && req.user.role !== "admin")
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { name, slug, description } = req.body;
+
+    // Prevent duplicate slugs
+    if (slug) {
+      const exist = await Category.findOne({ slug });
+      if (exist)
+        return res
+          .status(409)
+          .json({ message: "Category slug already exists" });
+    }
+
     const newCategory = new Category({ name, slug, description });
     await newCategory.save();
     res.status(201).json(newCategory);
@@ -37,7 +56,28 @@ createCategory = async (req, res) => {
 // تحديث كاتيجوري
 updateCategory = async (req, res) => {
   try {
+    // Only instructors or admins can update categories
+    if (
+      !req.user ||
+      (req.user.role !== "instructor" && req.user.role !== "admin")
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const { name, slug, description } = req.body;
+
+    // If slug provided, ensure uniqueness (exclude current category)
+    if (slug) {
+      const exist = await Category.findOne({
+        slug,
+        _id: { $ne: req.params.id },
+      });
+      if (exist)
+        return res
+          .status(409)
+          .json({ message: "Category slug already exists" });
+    }
+
     const category = await Category.findByIdAndUpdate(
       req.params.id,
       { name, slug, description },
@@ -54,6 +94,21 @@ updateCategory = async (req, res) => {
 // حذف كاتيجوري
 deleteCategory = async (req, res) => {
   try {
+    // Only instructors or admins can delete categories
+    if (
+      !req.user ||
+      (req.user.role !== "instructor" && req.user.role !== "admin")
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Prevent deletion if any course references this category
+    const used = await Course.exists({ category: req.params.id });
+    if (used)
+      return res
+        .status(400)
+        .json({ message: "Cannot delete category in use by courses" });
+
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category)
       return res.status(404).json({ message: "Category not found" });

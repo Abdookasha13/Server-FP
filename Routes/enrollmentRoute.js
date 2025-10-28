@@ -2,6 +2,7 @@ const express = require("express");
 const enrollmentRoute = express.Router();
 const enrollmentController = require("../Controllers/enrollmentController");
 const authenticate = require("../middleware/authenticationMiddleware");
+const authoriz = require("../middleware/authorizationMiddleware");
 
 /**
  * @openapi
@@ -18,15 +19,14 @@ const authenticate = require("../middleware/authenticationMiddleware");
  *           schema:
  *             type: object
  *             required:
- *               - user
  *               - course
  *             properties:
- *               user:
- *                 type: string
- *                 example: "64f1e7c2d3a4b5c6d7e8f9a0"
  *               course:
  *                 type: string
  *                 example: "64f1e7c2d3a4b5c6d7e8f9b1"
+ *             description: |
+ *               The authenticated user (from the Bearer token) will be used as the
+ *               enrolled user. Do NOT send a `user` field — it will be ignored.
  *     responses:
  *       201:
  *         description: Enrollment created
@@ -39,9 +39,12 @@ const authenticate = require("../middleware/authenticationMiddleware");
  *       500:
  *         description: Server error
  */
+//-----student only enrollment ------
+// `user` field and uses the authenticated user's id (req.user.id).
 enrollmentRoute.post(
   "/enrollments",
   authenticate,
+  authoriz("student"),
   enrollmentController.createEnrollment
 );
 

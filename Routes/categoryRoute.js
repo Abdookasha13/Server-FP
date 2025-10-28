@@ -1,6 +1,8 @@
 const express = require("express");
 const categoryRoute = express.Router();
 const categoryController = require("../Controllers/categoryController");
+const authenticate = require("../middleware/authenticationMiddleware");
+const authoriz = require("../middleware/authorizationMiddleware");
 
 /**
  * @swagger
@@ -90,6 +92,8 @@ categoryRoute.get("/category/:id", categoryController.getCategoryById);
  *   post:
  *     summary: Create a new category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -104,7 +108,13 @@ categoryRoute.get("/category/:id", categoryController.getCategoryById);
  *             schema:
  *               $ref: '#/components/schemas/Category'
  */
-categoryRoute.post("/category", categoryController.createCategory);
+// Only instructors or admins can create categories
+categoryRoute.post(
+  "/category",
+  authenticate,
+  authoriz("instructor", "admin"),
+  categoryController.createCategory
+);
 
 /**
  * @swagger
@@ -112,6 +122,8 @@ categoryRoute.post("/category", categoryController.createCategory);
  *   put:
  *     summary: Update a category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -135,7 +147,13 @@ categoryRoute.post("/category", categoryController.createCategory);
  *       404:
  *         description: Category not found
  */
-categoryRoute.put("/category/:id", categoryController.updateCategory);
+// Only instructors or admins can update categories
+categoryRoute.put(
+  "/category/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  categoryController.updateCategory
+);
 
 /**
  * @swagger
@@ -143,6 +161,8 @@ categoryRoute.put("/category/:id", categoryController.updateCategory);
  *   delete:
  *     summary: Delete a category
  *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -156,6 +176,12 @@ categoryRoute.put("/category/:id", categoryController.updateCategory);
  *       404:
  *         description: Category not found
  */
-categoryRoute.delete("/category/:id", categoryController.deleteCategory);
+// Only instructors or admins can delete categories
+categoryRoute.delete(
+  "/category/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  categoryController.deleteCategory
+);
 
 module.exports = categoryRoute;
