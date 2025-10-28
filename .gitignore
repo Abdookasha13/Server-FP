@@ -31,3 +31,6 @@ build/
 # --- اختبارات ---
 coverage/
 *.lcov
+
+#---- vscode files ------
+.vscode/

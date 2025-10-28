@@ -1,6 +1,8 @@
 const express = require("express");
 const courseRoute = express.Router();
 const courseCtrl = require("../Controllers/courseController");
+const authenticate = require("../middleware/authenticationMiddleware");
+const authoriz = require("../middleware/authorizationMiddleware");
 
 /**
  * @openapi
@@ -8,6 +10,8 @@ const courseCtrl = require("../Controllers/courseController");
  *   post:
  *     summary: Create a new course
  *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -44,7 +48,13 @@ const courseCtrl = require("../Controllers/courseController");
  *       400:
  *         description: Invalid input
  */
-courseRoute.post("/courses", courseCtrl.addCourse);
+// Only instructors or admins can create courses
+courseRoute.post(
+  "/courses",
+  authenticate,
+  authoriz("instructor", "admin"),
+  courseCtrl.addCourse
+);
 
 /**
  * @openapi
@@ -145,6 +155,8 @@ courseRoute.get("/courses/:id", courseCtrl.getCourseById);
  *   delete:
  *     summary: Delete a course by ID
  *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -158,13 +170,22 @@ courseRoute.get("/courses/:id", courseCtrl.getCourseById);
  *       404:
  *         description: Course not found
  */
-courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
+// Only instructors or admins can delete courses
+courseRoute.delete(
+  "/courses/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  courseCtrl.deleteCourse
+);
+
 /**
  * @openapi
  * /courses/{id}:
- *   put:
+ *   patch:
  *     summary: Update a course by ID
  *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -191,7 +212,6 @@ courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
  *               isFree:
  *                 type: boolean
  *                 example: false
- *
  *     responses:
  *       200:
  *         description: Course updated successfully
@@ -200,6 +220,12 @@ courseRoute.delete("/courses/:id", courseCtrl.deleteCourse);
  *       404:
  *         description: Course not found
  */
-courseRoute.put("/courses/:id", courseCtrl.updateCourse);
+// Only instructors or admins can update courses
+courseRoute.patch(
+  "/courses/:id",
+  authenticate,
+  authoriz("instructor", "admin"),
+  courseCtrl.updateCourse
+);
 
 module.exports = courseRoute;

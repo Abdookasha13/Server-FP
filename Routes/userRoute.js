@@ -1,6 +1,60 @@
 const express = require("express");
 const userRoute = express.Router();
 const userController = require("../Controllers/userController");
+const authenticate = require("../middleware/authenticationMiddleware");
+const authoriz = require("../middleware/authorizationMiddleware");
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 65123abc456def7890
+ *         name:
+ *           type: string
+ *           example: abdo
+ *         email:
+ *           type: string
+ *           example: abdo@gmail.com
+ *         role:
+ *           type: string
+ *           example: student
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *     Enrollment:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         user:
+ *           $ref: '#/components/schemas/User'
+ *         course:
+ *           type: object
+ *         progress:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               lesson:
+ *                 type: string
+ *               completed:
+ *                 type: boolean
+ *               completedAt:
+ *                 type: string
+ *                 format: date-time
+ *         completed:
+ *           type: boolean
+ *         certificateUrl:
+ *           type: string
+ */
 
 //------- register --------
 /**
@@ -9,23 +63,56 @@ const userController = require("../Controllers/userController");
  *   post:
  *     summary: Register a new user
  *     tags: [User]
- *     responses:
- *       201:
- *         description: add user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
  *             properties:
  *               name:
  *                 type: string
+ *                 example: abdo
  *               email:
  *                 type: string
- *                 default: "ab@gmail.com"
+ *                 example: abdo@gmail.com
  *               password:
  *                 type: string
+ *                 example: 123456
+ *               role:
+ *                 type: string
+ *                 description: User role (optional, default is "student")
+ *                 example: student
+ *     responses:
+ *       201:
+ *         description: "User registered successfully. Note: registration does NOT return a JWT token. Use /login to obtain a token."
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User registered successfully
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: 65123abc456def7890
+ *                     name:
+ *                       type: string
+ *                       example: abdo
+ *                     email:
+ *                       type: string
+ *                       example: abdo@gmail.com
+ *                     role:
+ *                       type: string
+ *                       example: student
  */
 userRoute.post("/register", userController.register);
 
@@ -36,21 +123,47 @@ userRoute.post("/register", userController.register);
  *   post:
  *     summary: Login user and get JWT
  *     tags: [User]
- *     responses:
- *       201:
- *         description: login
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
- *                 default: "ab@gmail.com"
+ *                 example: abc@gmail.com
  *               password:
  *                 type: string
+ *                 example: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  */
 userRoute.post("/login", userController.login);
 
@@ -61,11 +174,34 @@ userRoute.post("/login", userController.login);
  *   get:
  *     summary: Get all users
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: list of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   role:
+ *                     type: string
  */
-userRoute.get("/getAllUsers", userController.getAllUsers);
+//-----admin only list all users-------
+userRoute.get(
+  "/getAllUsers",
+  authenticate,
+  authoriz("admin"),
+  userController.getAllUsers
+);
 
 //------- get user by id --------
 /**
@@ -74,6 +210,8 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
  *   get:
  *     summary: Get a user by ID
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -84,10 +222,24 @@ userRoute.get("/getAllUsers", userController.getAllUsers);
  *     responses:
  *       200:
  *         description: User object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 role:
+ *                   type: string
  *       404:
  *         description: User not found
  */
-userRoute.get("/getUserById/:id", userController.getUserById);
+//-------- allow admin or the user themself to fetch user details --------
+userRoute.get("/getUserById/:id", authenticate, userController.getUserById);
 
 //------- delete user by id --------
 /**
@@ -96,6 +248,8 @@ userRoute.get("/getUserById/:id", userController.getUserById);
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -108,7 +262,12 @@ userRoute.get("/getUserById/:id", userController.getUserById);
  *       404:
  *         description: User not found
  */
-userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
+//---------- allow admin or the user themself to delete account ---------
+userRoute.delete(
+  "/deleteUserById/:id",
+  authenticate,
+  userController.deleteUserById
+);
 
 //------- update user --------
 /**
@@ -117,6 +276,8 @@ userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
  *   patch:
  *     summary: Update user fields
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,10 +298,67 @@ userRoute.delete("/deleteUserById/:id", userController.deleteUserById);
  *     responses:
  *       200:
  *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 role:
+ *                   type: string
  *       404:
  *         description: User not found
  */
-userRoute.patch("/updateUser/:id", userController.updateUser);
+//-------- allow admin or the user themself to update account and role changes require admin --------
+userRoute.patch("/updateUser/:id", authenticate, userController.updateUser);
+
+//--------set a user's role (promote a student to instructor)---------
+/**
+ * @openapi
+ * /users/{id}/role:
+ *   patch:
+ *     summary: Admin - set a user's role (student | instructor | admin)
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 example: instructor
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       400:
+ *         description: Invalid role
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ */
+//--------adminonly  set a user's role (promote a student to instructor)---------
+userRoute.patch(
+  "/users/:id/role",
+  authenticate,
+  authoriz("admin"),
+  userController.setUserRole
+);
 
 //--------------export user route--------
 module.exports = userRoute;

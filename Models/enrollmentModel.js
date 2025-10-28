@@ -1,3 +1,4 @@
+// Models/enrollmentModel.js
 const mongoose = require("mongoose");
 
 const EnrollmentSchema = new mongoose.Schema(
@@ -12,18 +13,23 @@ const EnrollmentSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
-    enrolledAt: { type: Date, default: Date.now },
     progress: [
       {
         lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
-        completed: Boolean,
-        completedAt: Date,
+        completed: { type: Boolean, default: false },
+        completedAt: {
+          type: Date,
+          default: function () {
+            return this.completed ? new Date() : undefined;
+          },
+        },
       },
     ],
-    completed: { type: Boolean, default: false },
     certificateUrl: String,
   },
   { timestamps: true }
 );
+
+EnrollmentSchema.index({ user: 1, course: 1 }, { unique: true });
 
 module.exports = mongoose.model("Enrollment", EnrollmentSchema);
