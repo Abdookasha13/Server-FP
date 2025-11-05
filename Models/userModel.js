@@ -34,6 +34,17 @@ const userSchema = new mongoose.Schema(
       },
       default: "student",
     },
+    expertise: {
+      type: String,
+      trim: true,
+    },
+    experience: {
+      type: Number,
+      min: 0,
+    },
+    profileImage: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
