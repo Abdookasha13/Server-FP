@@ -28,7 +28,7 @@ const register = async (req, res) => {
       return res.status(409).json({ message: "Email already exists" });
     }
 
-    const userData = { name, email, password, role };
+    const userData = { name, email, password, role ,profileImage };
 
     if (role === "instructor") {
       userData.expertise = expertise || "";
