@@ -64,6 +64,22 @@ const getCourseById = async (req, res) => {
   }
 };
 
+//get course by instructor id
+const getCoursesByInstructorId = async (req, res) => {
+  try {
+    const courses = await Course.find({ instructor: req.params.id })
+      .populate("category", "name slug")
+      .populate("instructor", "name email");
+    res
+      .status(200)
+      .json(courses.length > 0 ? courses : { message: "No courses found" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving courses" });
+  }
+};
+
 //delete course by id
 const deleteCourse = async (req, res) => {
   try {
@@ -139,4 +155,5 @@ module.exports = {
   getCourseById,
   deleteCourse,
   updateCourse,
+  getCoursesByInstructorId,
 };

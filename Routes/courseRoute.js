@@ -149,6 +149,59 @@ courseRoute.get("/courses", courseCtrl.getAllCourses);
  */
 courseRoute.get("/courses/:id", courseCtrl.getCourseById);
 
+//get courses by instructor id
+/**
+ * @openapi
+ * /instructorCourses/{id}:
+ *   get:
+ *     summary: Get courses by instructor ID
+ *     tags: [Courses]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the instructor
+ *     responses:
+ *       200:
+ *         description: List of courses by instructor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "64f1e7c2d3a4b5c6d7e8f9d3"
+ *                   title:
+ *                     type: string
+ *                     example: "Learn JavaScript"
+ *                   slug:
+ *                     type: string
+ *                     example: "learn-javascript"
+ *                   category:
+ *                     type: string
+ *                     example: "64f1e7c2d3a4b5c6d7e8f9a0"
+ *                   instructor:
+ *                     type: string
+ *                     example: "64f1e7c2d3a4b5c6d7e8f9b1"
+ *                   price:
+ *                     type: number
+ *                     example: 100
+ *                   isFree:
+ *                     type: boolean
+ *                     example: false
+ *                   published:
+ *                     type: boolean
+ *                     example: true
+ *       404:
+ *         description: Instructor not found
+ */
+courseRoute.get("/instructorCourses/:id", courseCtrl.getCoursesByInstructorId);
+
 /**
  * @openapi
  * /courses/{id}:
