@@ -114,7 +114,9 @@ const updateCourse = async (req, res) => {
     "_id",
   ];
   const updates = Object.fromEntries(
-    Object.entries(req.body).filter(([key]) => !blockedFields.includes(key))
+    Object.entries(req.body)
+      .filter(([key]) => !blockedFields.includes(key))
+      .filter(([, value]) => value !== undefined && value !== null)
   );
 
   const ignoredFields = Object.keys(req.body).filter((key) =>
@@ -143,9 +145,9 @@ const updateCourse = async (req, res) => {
       course: updated,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while updating the course" });
+    res.status(500).json({
+      message: err.message || "An error occurred while updating the course",
+    });
   }
 };
 

@@ -28,6 +28,11 @@ const courseSchema = new mongoose.Schema(
       min: 0,
       validate: {
         validator: function (value) {
+          if (value === undefined || value === null || value === "")
+            return true;
+
+          if (this.price === undefined || this.price === null) return true;
+
           return value < this.price;
         },
         message: "Discount price must be less than the original price",
@@ -44,5 +49,10 @@ const courseSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+courseSchema.virtual("lessonsCount").get(function () {
+  return this.lessons?.length || 0;
+});
+courseSchema.set("toJSON", { virtuals: true });
+courseSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Course", courseSchema);

@@ -34,6 +34,9 @@ const createLesson = async (req, res) => {
 
     const lesson = new Lesson(req.body);
     await lesson.save();
+
+    course.lessons.push(lesson._id);
+    await course.save();
     res.status(201).json({
       success: true,
       message: "Lesson created successfully",
