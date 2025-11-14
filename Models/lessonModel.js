@@ -13,6 +13,11 @@ const LessonSchema = new mongoose.Schema(
       enum: ["video", "article", "quiz"],
       default: "video",
     },
+    instructor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     content: String,
     videoUrl: String,
     duration: Number,

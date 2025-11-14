@@ -36,7 +36,11 @@ const getAllCourses = async (req, res) => {
   try {
     const course = await Course.find()
       .populate("category", "name slug")
-      .populate("instructor", "name email");
+      .populate("instructor", "name email profileImage")
+      .populate(
+        "lessons",
+        " title type content videoUrl duration order isPreview"
+      );
     res
       .status(200)
       .json(course.length > 0 ? course : { message: "No courses found" });
@@ -52,7 +56,11 @@ const getCourseById = async (req, res) => {
   try {
     const course = await Course.findById(req.params.id)
       .populate("category", "name slug")
-      .populate("instructor", "name email");
+      .populate("instructor", "name email profileImage expertise experience")
+      .populate(
+        "lessons",
+        " title type content videoUrl duration order isPreview"
+      );
     if (!course) {
       return res.status(404).send("Course not found");
     }
@@ -69,7 +77,11 @@ const getCoursesByInstructorId = async (req, res) => {
   try {
     const courses = await Course.find({ instructor: req.params.id })
       .populate("category", "name slug")
-      .populate("instructor", "name email");
+      .populate("instructor", "name email profileImage")
+      .populate(
+        "lessons",
+        " title type content videoUrl duration order isPreview"
+      );
     res
       .status(200)
       .json(courses.length > 0 ? courses : { message: "No courses found" });

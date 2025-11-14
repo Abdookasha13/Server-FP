@@ -175,6 +175,48 @@ const updateLesson = async (req, res) => {
     });
   }
 };
+const getLessonsByCourseId = async (req, res) => {
+  try {
+    const courseId = req.params.courseId;
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    const lessons = await Lesson.find({ course: courseId });
+
+    res.status(200).json({
+      success: true,
+      count: lessons.length,
+      data: lessons,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch lessons for this course",
+      error: error.message,
+    });
+  }
+};
+const getLessonByInstructorId = async (req, res) => {
+  try {
+    const lessons = await Lesson.find({
+      instructor: req.params.insId,
+    }).populate("instructor", "name email profileImage");
+
+    res
+      .status(200)
+      .json(lessons.length > 0 ? lessons : { message: "No courses found" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving courses" });
+  }
+};
 
 module.exports = {
   createLesson,
@@ -182,4 +224,6 @@ module.exports = {
   getLessonById,
   deleteLessonById,
   updateLesson,
+  getLessonsByCourseId,
+  getLessonByInstructorId,
 };
