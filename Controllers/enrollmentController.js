@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Enrollment = require("../Models/enrollmentModel");
+const courseModel = require("../Models/courseModel");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -19,6 +20,7 @@ const createEnrollment = async (req, res) => {
 
     const enrollment = new Enrollment({ user, course });
     await enrollment.save();
+   await courseModel.findByIdAndUpdate(course, { $inc: { studentsCount: 1 } });
 
     const populated = await Enrollment.findById(enrollment._id)
       .populate("user", "name email")
