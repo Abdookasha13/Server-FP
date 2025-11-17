@@ -3,9 +3,9 @@ const Event = require("../Models/eventModel");
 // ---------add new event---------
 const addEvent = async (req, res) => {
   try {
-    const { eventImage, title, description, date, location } = req.body;
+    const { eventImage, title, description, date, location, startTime, endTime } = req.body;
 
-    if (!eventImage || !title || !description || !date || !location) {
+    if (!eventImage || !title || !description || !date || !location || !startTime || !endTime) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -15,6 +15,8 @@ const addEvent = async (req, res) => {
       description,
       date,
       location,
+      startTime,
+      endTime
     });
     await event.save();
     res.status(201).json(event);
@@ -43,8 +45,23 @@ const getAllEvents = async (req, res) => {
       description: event.description?.[lang] || event.description?.en,
       location: event.location?.[lang] || event.location?.en,
       date: event.date,
+      dateFormatted:
+        lang === "ar"
+          ? event.date.toLocaleDateString("ar-EG", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+          : event.date.toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+      startTime: event.startTime,
+      endTime: event.endTime,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
+
     }));
 
     res.status(200).json(localizedEvents);
@@ -71,9 +88,23 @@ const getEventById = async (req, res) => {
       description: event.description?.[lang] || event.description?.en,
       location: event.location?.[lang] || event.location?.en,
 
-      date: event.date,
+      dateFormatted:
+        lang === "ar"
+          ? event.date.toLocaleDateString("ar-EG", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+          : event.date.toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
+      startTime: event.startTime,
+      endTime: event.endTime,
     };
 
     res.status(200).json(localizedEvent);
@@ -86,8 +117,8 @@ const getEventById = async (req, res) => {
 //--------update event---------
 const updateEvent = async (req, res) => {
   try {
-    const { eventImage, title, description, date, location } = req.body;
-    const update = { eventImage, title, description, date, location };
+    const { eventImage, title, description, date, location, startTime, endTime } = req.body;
+    const update = { eventImage, title, description, date, location, startTime, endTime };
     Object.keys(update).forEach((k) => update[k] === undefined && delete update[k]);
     const event = await Event.findByIdAndUpdate(req.params.id, update, {
       new: true,

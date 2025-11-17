@@ -21,6 +21,14 @@ const eventSchema = new mongoose.Schema(
       required: [true, "Date is required"],
       index: true,
     },
+    startTime: {
+      en: { type: String, required: true },
+      ar: { type: String, required: true },
+    },
+    endTime: {
+      en: { type: String, required: true },
+      ar: { type: String, required: true },
+    },
     location: {
       en: { type: String, required: [true, "Location (EN) is required"], trim: true },
       ar: { type: String, required: [true, "Location (AR) is required"], trim: true },
