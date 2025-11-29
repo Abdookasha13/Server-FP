@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const serviceSchema = new mongoose.Schema({
+const eventSchema = new mongoose.Schema({
   eventImage: {
     type: String,
     required: [true, "Event image is required"],
@@ -17,10 +17,14 @@ const serviceSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Date is required"],
   },
+  time: {
+    type: String,
+    required: [true, "Time is required"],
+  },
   location: {
     type: String,
     required: [true, "Location is required"],
   },
 });
 
-module.exports = mongoose.model("Event", serviceSchema);
+module.exports = mongoose.model("Event", eventSchema);

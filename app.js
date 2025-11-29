@@ -10,6 +10,7 @@ const categoryRoute = require("./Routes/categoryRoute");
 const eventRoute = require("./Routes/eventRoute");
 const testimonialRoute = require("./Routes/testimonialRoute");
 const serviceRoute = require("./Routes/servicesRoute");
+const contactUsRoute = require("./Routes/contactUsRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -40,6 +41,7 @@ app.use(categoryRoute);
 app.use(eventRoute);
 app.use(testimonialRoute);
 app.use(serviceRoute);
+app.use(contactUsRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
