@@ -7,11 +7,13 @@ const courseRoute = require("./Routes/courseRoute");
 const lessonRoute = require("./Routes/lessonRoute");
 const enrollmentRoute = require("./Routes/enrollmentRoute");
 const categoryRoute = require("./Routes/categoryRoute");
+const cartRoute = require("./Routes/cartRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
+
 //------------dotenv----------------
 require("dotenv").config();
 
@@ -34,6 +36,7 @@ app.use(courseRoute);
 app.use(lessonRoute);
 app.use(enrollmentRoute);
 app.use(categoryRoute);
+app.use(cartRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
