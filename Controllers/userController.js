@@ -18,7 +18,8 @@ function generateToken(user) {
 //------- register -----------
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, expertise, experience, profileImage } = req.body;
+    const { name, email, password, role, expertise, experience, profileImage } =
+      req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -28,7 +29,7 @@ const register = async (req, res) => {
       return res.status(409).json({ message: "Email already exists" });
     }
 
-    const userData = { name, email, password, role ,profileImage };
+    const userData = { name, email, password, role, profileImage };
 
     if (role === "instructor") {
       userData.expertise = expertise || "";
