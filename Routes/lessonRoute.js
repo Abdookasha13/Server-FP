@@ -187,7 +187,7 @@ lessonRoute.put(
   lessonController.updateLesson
 );
 
-lessonRoute.get("/lessons/:courseId", lessonController.getLessonsByCourseId);
-lessonRoute.get("/lessons/:insId", lessonController.getLessonByInstructorId);
+lessonRoute.get("/lessons/course/:courseId", lessonController.getLessonsByCourseId);
+lessonRoute.get("/lessons/instructor/:insId", lessonController.getLessonByInstructorId);
 //--------------Export Lesson Route--------
 module.exports = lessonRoute;

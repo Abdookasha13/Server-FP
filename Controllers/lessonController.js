@@ -206,7 +206,10 @@ const getLessonByInstructorId = async (req, res) => {
   try {
     const lessons = await Lesson.find({
       instructor: req.params.insId,
+
+
     }).populate("instructor", "name email profileImage");
+console.log("INS ID =", req.params.insId);
 
     res
       .status(200)

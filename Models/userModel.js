@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema(
     profileImage: {
       type: String,
     },
+    wishlist: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Course",
+  }
+],
   },
   { timestamps: true }
 );
