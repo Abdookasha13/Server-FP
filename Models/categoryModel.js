@@ -3,8 +3,13 @@ const mongoose = require("mongoose");
 const CategorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    description: String,
+    icon: { type: String },
+    courses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   { timestamps: true }
 );

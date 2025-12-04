@@ -62,10 +62,29 @@ const deleteContactUsMessage = async (req, res) => {
   }
 };
 
+// -----------mark contact us message as read---------
+const markAsRead = async (req, res) => {
+  try {
+    const message = await ContactUs.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+    if (!message) {
+      return res.status(404).json({ message: "Contact us message not found" });
+    }
+    res.status(200).json(message);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to mark contact us message as read", error });
+  }
+};
 
 module.exports = {
   addContactUsMessage,
   getAllContactUsMessages,
   getContactUsMessageById,
   deleteContactUsMessage,
+  markAsRead,
 };

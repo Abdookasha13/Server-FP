@@ -11,6 +11,9 @@ contactUsRoute.get('/getAllContactUsMessages', contactUsController.getAllContact
 //----------get contact us message by id---------
 contactUsRoute.get('/getContactUsMessageById/:id', contactUsController.getContactUsMessageById);
 
+// -----------mark contact us message as read---------
+contactUsRoute.patch('/markAsRead/:id', contactUsController.markAsRead);
+
 //--------delete contact us message---------
 contactUsRoute.delete('/deleteContactUsMessage/:id', contactUsController.deleteContactUsMessage);
 

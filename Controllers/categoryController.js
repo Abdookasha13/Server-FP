@@ -34,18 +34,9 @@ createCategory = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const { name, slug, description } = req.body;
+    const { name, icon } = req.body;
 
-    // Prevent duplicate slugs
-    if (slug) {
-      const exist = await Category.findOne({ slug });
-      if (exist)
-        return res
-          .status(409)
-          .json({ message: "Category slug already exists" });
-    }
-
-    const newCategory = new Category({ name, slug, description });
+    const newCategory = new Category({ name, icon });
     await newCategory.save();
     res.status(201).json(newCategory);
   } catch (error) {
@@ -64,23 +55,11 @@ updateCategory = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const { name, slug, description } = req.body;
-
-    // If slug provided, ensure uniqueness (exclude current category)
-    if (slug) {
-      const exist = await Category.findOne({
-        slug,
-        _id: { $ne: req.params.id },
-      });
-      if (exist)
-        return res
-          .status(409)
-          .json({ message: "Category slug already exists" });
-    }
+    const { name, icon } = req.body;
 
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      { name, slug, description },
+      { name, icon },
       { new: true, runValidators: true }
     );
     if (!category)

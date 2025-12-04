@@ -12,7 +12,6 @@ const authoriz = require("../middleware/authorizationMiddleware");
  *       type: object
  *       required:
  *         - name
- *         - slug
  *       properties:
  *         id:
  *           type: string
@@ -20,12 +19,14 @@ const authoriz = require("../middleware/authorizationMiddleware");
  *         name:
  *           type: string
  *           description: Name of the category
- *         slug:
+ *         icon:
  *           type: string
- *           description: URL-friendly slug
- *         description:
- *           type: string
- *           description: Description of the category
+ *           description: Icon of the category
+ *         courses:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Array of course IDs associated with this category
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -148,7 +149,7 @@ categoryRoute.post(
  *         description: Category not found
  */
 // Only instructors or admins can update categories
-categoryRoute.put(
+categoryRoute.patch(
   "/category/:id",
   authenticate,
   authoriz("instructor", "admin"),
