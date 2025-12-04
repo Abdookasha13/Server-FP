@@ -56,7 +56,9 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Email and password required" });
     }
 
-    const user = await User.findOne({ email });
+    console.log("Login request:", req.body);
+const user = await User.findOne({ email });
+console.log("User from DB:", user);
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
@@ -179,6 +181,35 @@ const setUserRole = async (req, res) => {
   }
 };
 
+const addToWishlist = async (req, res) => {
+  try {
+    const userId = req.user.id;   // جايّ من الـ auth middleware
+    const { courseId } = req.body;
+
+    const user = await User.findById(userId);
+
+    // لو مش موجود قبل كده
+    if (!user.wishlist.includes(courseId)) {
+      user.wishlist.push(courseId);
+      await user.save();
+    }
+
+    return res.status(200).json({ message: "Course added to wishlist" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getWishlist = async (req, res) => {
+  const userId = req.user.id;
+
+  const user = await User.findById(userId)
+    .populate("wishlist");  // عشان يرجّع البيانات بدل IDs
+
+  res.status(200).json({ wishlist: user.wishlist });
+};
+
 //----------------put user------------
 // const replaceProductById = async (req, res) => {
 //   const id = req.params.id;
@@ -200,4 +231,6 @@ module.exports = {
   deleteUserById,
   updateUser,
   setUserRole,
+  addToWishlist,
+  getWishlist
 };

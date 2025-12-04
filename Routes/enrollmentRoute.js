@@ -178,4 +178,6 @@ enrollmentRoute.delete(
   enrollmentController.deleteEnrollmentById
 );
 
+enrollmentRoute.get("/myenrollments/:stdId",authenticate, enrollmentController.getEnrollmentsByStdIdId);
+
 module.exports = enrollmentRoute;

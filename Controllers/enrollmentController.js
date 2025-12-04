@@ -137,11 +137,25 @@ const deleteEnrollmentById = async (req, res) => {
     res.status(500).json({ message: "Error deleting enrollment" });
   }
 };
-
+const getEnrollmentsByStdIdId = async (req, res) => {
+  try {
+    const enrollments = await Enrollment.find({user: req.params.stdId })
+      .populate("course", "title");
+     
+    res  
+      .status(200)
+      .json(enrollments.length > 0 ? enrollments : { message: "No courses found" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving courses" });
+  }
+};
 module.exports = {
-  createEnrollment,
+  createEnrollment, 
   getAllEnrollments,
   getEnrollmentById,
   updateEnrollment,
   deleteEnrollmentById,
+  getEnrollmentsByStdIdId 
 };

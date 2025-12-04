@@ -360,5 +360,9 @@ userRoute.patch(
   userController.setUserRole
 );
 
+userRoute.post("/add-to-wishlist", authenticate, userController.addToWishlist);
+userRoute.get("/wishlist", authenticate, userController.getWishlist);
+
+
 //--------------export user route--------
 module.exports = userRoute;

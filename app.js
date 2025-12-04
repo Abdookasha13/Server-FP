@@ -36,8 +36,9 @@ mongoose
 
 //----------routes------------
 app.use(userRoute);
-app.use(courseRoute);
+
 app.use(lessonRoute);
+app.use(courseRoute);
 app.use(enrollmentRoute);
 app.use(categoryRoute);
 app.use(eventRoute);
