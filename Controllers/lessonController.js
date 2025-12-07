@@ -35,11 +35,11 @@ const createLesson = async (req, res) => {
     const lesson = new Lesson(req.body);
     await lesson.save();
 
-    course.lessons.push(lesson._id);
-    await course.save();
+    // course.lessons.push(lesson._id);
+    // await course.save();
     res.status(201).json({
       success: true,
-      message: "Lesson created successfully",
+      message: "Lesson created successfully. Waiting for admin approval",
       data: lesson,
     });
   } catch (error) {
@@ -206,10 +206,8 @@ const getLessonByInstructorId = async (req, res) => {
   try {
     const lessons = await Lesson.find({
       instructor: req.params.insId,
-
-
     }).populate("instructor", "name email profileImage");
-console.log("INS ID =", req.params.insId);
+    console.log("INS ID =", req.params.insId);
 
     res
       .status(200)
@@ -221,6 +219,83 @@ console.log("INS ID =", req.params.insId);
   }
 };
 
+// -------------------------approved lesson by admin------------------------
+const approveLesson = async (req, res) => {
+  try {
+    const lessonId = req.params.id;
+    const lesson = await Lesson.findById(lessonId);
+
+    if (!lesson)
+      return res
+        .status(404)
+        .json({ success: false, message: "Lesson not found" });
+
+    //-----------------only admin can approve lessons------------------
+    if (!req.user || req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ success: false, message: "Only admin allowed" });
+    }
+
+    // -----------if lesson is already approved-------------
+    if (lesson.isApproved)
+      return res
+        .status(400)
+        .json({ success: false, message: "Lesson already approved" });
+
+    // -----------update lesson approval status-------------
+    lesson.isApproved = true;
+    await lesson.save();
+
+    // -----------add lesson to course-------------
+    const course = await Course.findById(lesson.course);
+    if (!course)
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
+
+    course.lessons.push(lesson._id);
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Lesson approved and added to course successfully",
+      data: lesson,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// -----------------get pending lessons for admin------------------
+const getPendingLessons = async (req, res) => {
+  try {
+    //-----------------only admin can view pending lessons------------------
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Only admin can view pending lessons",
+      });
+    }
+
+    const pendingLessons = await Lesson.find({ isApproved: false })
+      .populate("instructor", "name email profileImage")
+      .populate("course", "title");
+
+    res.status(200).json({
+      success: true,
+      count: pendingLessons.length,
+      data: pendingLessons,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch pending lessons",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createLesson,
   getAllLessons,
@@ -229,4 +304,6 @@ module.exports = {
   updateLesson,
   getLessonsByCourseId,
   getLessonByInstructorId,
+  approveLesson,
+  getPendingLessons,
 };

@@ -187,7 +187,27 @@ lessonRoute.put(
   lessonController.updateLesson
 );
 
-lessonRoute.get("/lessons/course/:courseId", lessonController.getLessonsByCourseId);
-lessonRoute.get("/lessons/instructor/:insId", lessonController.getLessonByInstructorId);
+lessonRoute.get(
+  "/lessons/course/:courseId",
+  lessonController.getLessonsByCourseId
+);
+lessonRoute.get(
+  "/lessons/instructor/:insId",
+  lessonController.getLessonByInstructorId
+);
+lessonRoute.patch(
+  "/approveLesson/:id",
+  authenticate,
+  authoriz("admin"),
+  lessonController.approveLesson
+);
+
+lessonRoute.get(
+  "/pendingLessons",
+  authenticate,
+  authoriz("admin"),
+  lessonController.getPendingLessons
+);
+
 //--------------Export Lesson Route--------
 module.exports = lessonRoute;

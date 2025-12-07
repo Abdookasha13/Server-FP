@@ -23,6 +23,7 @@ const LessonSchema = new mongoose.Schema(
     duration: Number,
     order: Number,
     isPreview: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
