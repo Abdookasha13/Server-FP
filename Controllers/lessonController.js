@@ -254,8 +254,10 @@ const approveLesson = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Course not found" });
 
-    course.lessons.push(lesson._id);
-    await course.save();
+    if (!course.lessons.some((id) => id.toString() === lesson._id.toString())) {
+      course.lessons.push(lesson._id);
+      await course.save();
+    }
 
     res.status(200).json({
       success: true,
