@@ -12,6 +12,7 @@ const testimonialRoute = require("./Routes/testimonialRoute");
 const serviceRoute = require("./Routes/servicesRoute");
 const contactUsRoute = require("./Routes/contactUsRoute");
 const cartRoute = require("./Routes/cartRoute");
+const paymentRoute = require("./Routes/paymentRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -46,6 +47,7 @@ app.use(testimonialRoute);
 app.use(serviceRoute);
 app.use(contactUsRoute);
 app.use(cartRoute);
+app.use(paymentRoute);
 
 //-------swagger setup---------
 const swaggerSpec = swaggerJsDoc({
