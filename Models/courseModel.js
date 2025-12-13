@@ -43,8 +43,8 @@ const courseSchema = new mongoose.Schema(
     thumbnailUrl: { type: String, match: /^https?:\/\/.+/ },
     lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }],
     studentsCount: { type: Number, default: 0, min: 0 },
-    rating: { type: Number, default: 0, min: 0, max: 5 },
-    ratingCount: { type: Number, default: 0, min: 0 },
+    // rating: { type: Number, default: 0, min: 0, max: 5 },
+    // ratingCount: { type: Number, default: 0, min: 0 },
     published: { type: Boolean, default: false },
   },
   { timestamps: true }
