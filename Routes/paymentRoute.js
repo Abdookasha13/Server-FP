@@ -44,10 +44,15 @@ router.post("/create-order", async (req, res) => {
     }
 
     // Calculate total
-    const total = courses.reduce((sum, c) => sum + Number(c.discountPrice ?? c.price), 0);
+    const total = courses.reduce(
+      (sum, c) => sum + Number(c.discountPrice ?? c.price),
+      0
+    );
+    console.log("Calculated total:", total);
     if (total <= 0) return res.status(400).json({ message: "Invalid total" });
 
     const accessToken = await getPayPalAccessToken();
+    console.log("PayPal Access Token obtained", accessToken);
 
     const orderPayload = {
       intent: "CAPTURE",
@@ -58,25 +63,29 @@ router.post("/create-order", async (req, res) => {
           amount: {
             currency_code: "USD",
             value: total.toFixed(2),
-            breakdown: {
-              item_total: {
-                currency_code: "USD",
-                value: total.toFixed(2),
-              },
-            },
+            // breakdown: {
+            //   item_total: {
+            //     currency_code: "USD",
+            //     value: total.toFixed(2),
+            //   },
+            // },
           },
         },
       ],
     };
 
-    const response = await axios.post(`${PAYPAL_API}/v2/checkout/orders`, orderPayload, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.post(
+      `${PAYPAL_API}/v2/checkout/orders`,
+      orderPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    console.log("💳 Order created:", response.data.id);
+    console.log("Order created:", response.data.id);
     res.json({ id: response.data.id });
   } catch (err) {
     console.error("CREATE ORDER ERROR:", err.response?.data || err.message);
@@ -93,17 +102,20 @@ router.post("/capture-order", async (req, res) => {
     const { orderId } = req.body;
 
     if (!orderId) return res.status(400).json({ message: "Order ID required" });
-
     const accessToken = await getPayPalAccessToken();
 
-    const response = await axios.post(`${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`, {}, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.post(
+      `${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    console.log("💳 Capture response:", response.data);
+    console.log("Capture response:", response.data);
 
     if (response.data.status !== "COMPLETED") {
       return res.status(422).json({

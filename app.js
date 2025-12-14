@@ -12,14 +12,13 @@ const testimonialRoute = require("./Routes/testimonialRoute");
 const serviceRoute = require("./Routes/servicesRoute");
 const contactUsRoute = require("./Routes/contactUsRoute");
 const cartRoute = require("./Routes/cartRoute");
+const reviewRoute = require("./Routes/reviewsRoute");
 const paymentRoute = require("./Routes/paymentRoute");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
-const reviewRoute = require("./Routes/reviewsRoute");
-
 
 //------------dotenv----------------
 require("dotenv").config();
@@ -48,7 +47,7 @@ app.use(testimonialRoute);
 app.use(serviceRoute);
 app.use(contactUsRoute);
 app.use(cartRoute);
-app.use(reviewRoute)
+app.use(reviewRoute);
 app.use(paymentRoute);
 
 //-------swagger setup---------
