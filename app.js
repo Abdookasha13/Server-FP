@@ -18,6 +18,8 @@ const cors = require("cors");
 //------------ swagger -----------
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
+const reviewRoute = require("./Routes/reviewsRoute");
+
 
 //------------dotenv----------------
 require("dotenv").config();
@@ -37,7 +39,6 @@ mongoose
 
 //----------routes------------
 app.use(userRoute);
-
 app.use(lessonRoute);
 app.use(courseRoute);
 app.use(enrollmentRoute);
@@ -47,6 +48,7 @@ app.use(testimonialRoute);
 app.use(serviceRoute);
 app.use(contactUsRoute);
 app.use(cartRoute);
+app.use(reviewRoute)
 app.use(paymentRoute);
 
 //-------swagger setup---------
