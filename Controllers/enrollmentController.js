@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Enrollment = require("../Models/enrollmentModel");
 const courseModel = require("../Models/courseModel");
+const reviewsModel = require("../Models/reviewsModel");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -139,13 +140,41 @@ const deleteEnrollmentById = async (req, res) => {
 };
 const getEnrollmentsByStdIdId = async (req, res) => {
   try {
-    const enrollments = await Enrollment.find({user: req.params.stdId })
-      .populate("course", "title");
-     
-    res  
-      .status(200)
-      .json(enrollments.length > 0 ? enrollments : { message: "No courses found" });
+    const { stdId } = req.params;
+
+    // جيب الـ enrollments
+    const enrollments = await Enrollment.find({ user: stdId }).populate({
+      path: "course",
+      select: "title price thumbnailUrl instructor",
+      populate: {
+        path: "instructor",
+        select: "name profileImage",
+      },
+    });
+
+    // لكل enrollment، جيب التقييم بتاعه
+    const enrollmentsWithRatings = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const review = await reviewsModel.findOne({
+          course: enrollment.course._id,
+          user: stdId,
+        });
+
+        const enrollmentObj = enrollment.toObject();
+        return {
+          ...enrollmentObj,
+          rating: review?.rating || null, // أضيف التقييم لو موجود
+        };
+      })
+    );
+
+    res.status(200).json(
+      enrollmentsWithRatings.length > 0
+        ? enrollmentsWithRatings
+        : { message: "No courses found" }
+    );
   } catch (err) {
+    console.error("getEnrollmentsByStdIdId error:", err);
     res
       .status(500)
       .json({ message: "An error occurred while retrieving courses" });
