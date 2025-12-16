@@ -4,6 +4,7 @@ const axios = require("axios");
 const Course = require("../Models/courseModel");
 const authenticate = require("../middleware/authenticationMiddleware");
 const Cart = require("../Models/cartModel");
+const Enrollment = require("../Models/enrollmentModel");
 
 require("dotenv").config();
 
@@ -105,6 +106,10 @@ router.post("/capture-order", authenticate, async (req, res) => {
     const { orderId } = req.body;
 
     if (!orderId) return res.status(400).json({ message: "Order ID required" });
+
+    if (!req.user || !req.user._id)
+      return res.status(401).json({ message: "Unauthorized" });
+
     const accessToken = await getPayPalAccessToken();
 
     const response = await axios.post(
@@ -127,9 +132,40 @@ router.post("/capture-order", authenticate, async (req, res) => {
       });
     }
 
-    await Cart.updateOne({ user: req.user._id }, { $set: { items: [] } });
+    const cart = await Cart.findOne({ user: req.user._id });
 
-    res.json(response.data);
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+     for (const item of cart.items) {
+      try {
+        await Enrollment.create({
+          user: req.user._id,
+          course: item.course,
+        });
+
+         await Course.findByIdAndUpdate(item.course, {
+          $inc: { studentsCount: 1 },
+        });
+        } catch (err) {
+      
+        if (err.code !== 11000) {
+          throw err;
+        }
+      }
+    }
+
+     await Cart.updateOne(
+      { user: req.user._id },
+      { $set: { items: [] } }
+    );
+
+    // await Cart.updateOne({ user: req.user._id }, { $set: { items: [] } });
+
+    res.json({
+      message: "Payment completed, courses enrolled successfully",
+    });
   } catch (err) {
     console.error("CAPTURE ORDER ERROR:", err.response?.data || err.message);
     res.status(err.response?.status || 500).json({
