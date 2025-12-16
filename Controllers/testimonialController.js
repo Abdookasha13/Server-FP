@@ -16,41 +16,64 @@ const addTestimonial = async (req, res) => {
     res.status(500).json({ message: "Failed to add testimonial", error });
   }
 };
-
-//---------getAllTestimonials---------
+//---------getAllTestimonials with localization---------
 const getAllTestimonials = async (req, res) => {
   try {
-    const testimonials = await Testimonial.find().populate(
-      "userId",
-      "name role profileImage"
-    );
-    res
-      .status(200)
-      .json(
-        testimonials.length > 0
-          ? testimonials
-          : { message: "No testimonials found" }
-      );
+    const lang = req.query.lang || "en";
+
+    const testimonials = await Testimonial.find()
+      .populate("userId", "name role profileImage")
+      .lean();
+
+    if (!testimonials || testimonials.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const localizedTestimonials = testimonials.map((t) => ({
+      _id: t._id,
+      userId: t.userId,
+      comment: t.comment?.[lang] || t.comment?.en,
+      rating: t.rating,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+    }));
+
+    res.status(200).json(localizedTestimonials);
   } catch (error) {
     res.status(500).json({ message: "Failed to get testimonials", error });
   }
 };
 
-//----------get testimonial by id---------
+
+
+//----------get testimonial by id with localization---------
 const getTestimonialById = async (req, res) => {
   try {
-    const testimonial = await Testimonial.findById(req.params.id).populate(
-      "userId",
-      "name role profileImage"
-    );
+    const lang = req.query.lang || "en";
+
+    const testimonial = await Testimonial.findById(req.params.id)
+      .populate("userId", "name role profileImage")
+      .lean();
+
     if (!testimonial) {
       return res.status(404).json({ message: "Testimonial not found" });
     }
-    res.status(200).json(testimonial);
+
+    const localizedTestimonial = {
+      _id: testimonial._id,
+      userId: testimonial.userId,
+      comment: testimonial.comment?.[lang] || testimonial.comment?.en,
+      rating: testimonial.rating,
+      createdAt: testimonial.createdAt,
+      updatedAt: testimonial.updatedAt,
+    };
+
+    res.status(200).json(localizedTestimonial);
   } catch (error) {
     res.status(500).json({ message: "Failed to get testimonial", error });
   }
 };
+
 
 //--------update testimonial---------
 const updateTestimonial = async (req, res) => {
