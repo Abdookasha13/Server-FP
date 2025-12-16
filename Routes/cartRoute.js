@@ -23,6 +23,14 @@ cartRoute.delete(
   cartController.removeFromCart
 );
 
-module.exports = cartRoute;
+cartRoute.delete(
+  "/cart/clear",
+  authenticate,
+  authoriz("student"),
+  cartController.clearCart
+);
+
+
+// module.exports = cartRoute;
 
 module.exports = cartRoute;

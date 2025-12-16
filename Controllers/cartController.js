@@ -130,3 +130,25 @@ exports.getCart = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// ---------------- Clear Cart ----------------
+exports.clearCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user._id });
+    if (!cart) {
+      return res.status(200).json({ items: [] });
+    }
+
+    cart.items = [];
+    await cart.save();
+
+    res.status(200).json({ items: [] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to clear cart",
+      error: error.message,
+    });
+  }
+};
+

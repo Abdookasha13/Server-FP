@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const Course = require("../Models/courseModel");
+const authenticate = require("../middleware/authenticationMiddleware");
+const Cart = require("../Models/cartModel");
+
 require("dotenv").config();
 
 const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
@@ -97,7 +100,7 @@ router.post("/create-order", async (req, res) => {
 });
 
 // ---------------- Capture Order ----------------
-router.post("/capture-order", async (req, res) => {
+router.post("/capture-order", authenticate, async (req, res) => {
   try {
     const { orderId } = req.body;
 
@@ -123,6 +126,8 @@ router.post("/capture-order", async (req, res) => {
         paypalError: response.data,
       });
     }
+
+    await Cart.updateOne({ user: req.user._id }, { $set: { items: [] } });
 
     res.json(response.data);
   } catch (err) {
