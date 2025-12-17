@@ -50,7 +50,8 @@ const courseSchema = new mongoose.Schema(
       min: 0,
       validate: {
         validator: function (value) {
-          if (value === undefined || value === null || value === "") return true;
+          if (value === undefined || value === null || value === "")
+            return true;
           if (this.price === undefined || this.price === null) return true;
           return value < this.price;
         },
@@ -80,6 +81,8 @@ const courseSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    rating: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 },
     published: {
       type: Boolean,
       default: false,
