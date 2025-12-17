@@ -9,12 +9,28 @@ const eventSchema = new mongoose.Schema(
       trim: true,
     },
     title: {
-      en: { type: String, required: [true, "Title (EN) is required"], trim: true },
-      ar: { type: String, required: [true, "Title (AR) is required"], trim: true },
+      en: {
+        type: String,
+        required: [true, "Title (EN) is required"],
+        trim: true,
+      },
+      ar: {
+        type: String,
+        required: [true, "Title (AR) is required"],
+        trim: true,
+      },
     },
     description: {
-      en: { type: String, required: [true, "Description (EN) is required"], trim: true },
-      ar: { type: String, required: [true, "Description (AR) is required"], trim: true },
+      en: {
+        type: String,
+        required: [true, "Description (EN) is required"],
+        trim: true,
+      },
+      ar: {
+        type: String,
+        required: [true, "Description (AR) is required"],
+        trim: true,
+      },
     },
     date: {
       type: Date,
@@ -22,16 +38,24 @@ const eventSchema = new mongoose.Schema(
       index: true,
     },
     startTime: {
-      en: { type: String, required: true },
-      ar: { type: String, required: true },
+      type: String,
+      required: true,
     },
     endTime: {
-      en: { type: String, required: true },
-      ar: { type: String, required: true },
+      type: String,
+      required: true,
     },
     location: {
-      en: { type: String, required: [true, "Location (EN) is required"], trim: true },
-      ar: { type: String, required: [true, "Location (AR) is required"], trim: true },
+      en: {
+        type: String,
+        required: [true, "Location (EN) is required"],
+        trim: true,
+      },
+      ar: {
+        type: String,
+        required: [true, "Location (AR) is required"],
+        trim: true,
+      },
     },
   },
   {

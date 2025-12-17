@@ -28,8 +28,8 @@ const getAllServices = async (req, res) => {
     const localizedServices = services.map(service => ({
       _id: service._id,
       icon: service.icon,
-      title: service.title?.[lang] || service.title?.en,
-      description: service.description?.[lang] || service.description?.en,
+      title: service.title,
+      description: service.description,
       createdAt: service.createdAt,
       updatedAt: service.updatedAt
     }));
@@ -51,8 +51,8 @@ const getServiceById = async (req, res) => {
     const localizedService = {
       _id: service._id,
       icon: service.icon,
-      title: service.title?.[lang] || service.title?.en,
-      description: service.description?.[lang] || service.description?.en,
+      title: service.title,
+      description: service.description,
       createdAt: service.createdAt,
       updatedAt: service.updatedAt
     };

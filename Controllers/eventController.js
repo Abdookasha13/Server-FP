@@ -41,9 +41,9 @@ const getAllEvents = async (req, res) => {
     const localizedEvents = events.map((event) => ({
       _id: event._id,
       eventImage: event.eventImage,
-      title: event.title?.[lang] || event.title?.en,
-      description: event.description?.[lang] || event.description?.en,
-      location: event.location?.[lang] || event.location?.en,
+      title: event.title,
+      description: event.description,
+      location: event.location,
       date: event.date,
       dateFormatted:
         lang === "ar"
@@ -84,9 +84,9 @@ const getEventById = async (req, res) => {
       _id: event._id,
       eventImage: event.eventImage,
 
-      title: event.title?.[lang] || event.title?.en,
-      description: event.description?.[lang] || event.description?.en,
-      location: event.location?.[lang] || event.location?.en,
+      title: event.title,
+      description: event.description,
+      location: event.location,
 
       dateFormatted:
         lang === "ar"

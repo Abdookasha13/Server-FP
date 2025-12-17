@@ -4,7 +4,7 @@ const Course = require("../Models/courseModel");
 const localizeCategory = (category, lang = "en") => {
   return {
     _id: category._id,
-    name: category.name[lang],
+    name: category.name,
     icon: category.icon,
     coursesCount: category.coursesCount,
     createdAt: category.createdAt,
@@ -16,7 +16,7 @@ const localizeCategory = (category, lang = "en") => {
 const getAllCategories = async (req, res) => {
   try {
     const lang = req.query.lang || "en";
-    const categories = await Category.find();
+    const categories = await Category.find().lean();
 
     const localized = categories.map((cat) =>
       localizeCategory(cat, lang)
