@@ -5,13 +5,13 @@ const serviceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  title: {
-    type: String,
-    required: true,
+ title: {
+    en: { type: String, required: true },
+    ar: { type: String, required: true },
   },
   description: {
-    type: String,
-    required: true,
+    en: { type: String, required: true },
+    ar: { type: String, required: true },
   },
 });
 

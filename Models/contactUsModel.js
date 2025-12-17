@@ -3,9 +3,8 @@ const mongoose = require("mongoose");
 const contactUsSchema = new mongoose.Schema(
   {
     name: {
-      type: String,
-      required: [true, "Name is required"],
-      trim: true,
+      en: { type: String, required: true, trim: true },
+      ar: { type: String, required: true, trim: true },
     },
     email: {
       type: String,
@@ -14,19 +13,18 @@ const contactUsSchema = new mongoose.Schema(
       lowercase: true,
       match: [/.+\@.+\..+/, "Please fill a valid email address"],
     },
-    message: {
-      type: String,
-      required: [true, "Message is required"],
-      trim: true,
-    },
     phone: {
       type: String,
       trim: true,
       match: [/^(010|011|012|015)\d{8}$/, "Please fill a valid phone number"],
     },
     subject: {
-      type: String,
-      trim: true,
+      en: { type: String, trim: true },
+      ar: { type: String, trim: true },
+    },
+    message: {
+      en: { type: String, required: true, trim: true },
+      ar: { type: String, required: true, trim: true },
     },
     isRead: {
       type: Boolean,
