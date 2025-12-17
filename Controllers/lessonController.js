@@ -234,7 +234,7 @@ const getLessonsByCourseId = async (req, res) => {
       });
     }
 
-    const lessons = await Lesson.find({ course: courseId });
+    const lessons = await Lesson.find({ course: courseId }).populate("course", "title");
 
     res.status(200).json({
       success: true,
