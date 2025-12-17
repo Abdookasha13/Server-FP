@@ -31,66 +31,85 @@ const addCourse = async (req, res) => {
   }
 };
 
-//get all courses
+//get all courses with localization
 const getAllCourses = async (req, res) => {
   try {
-    const course = await Course.find()
+    const lang = req.query.lang || "en";
+
+    const courses = await Course.find()
       .populate("category", "name slug")
       .populate("instructor", "name email profileImage")
-      .populate(
-        "lessons",
-        " title type content videoUrl duration order isPreview"
-      );
-    res
-      .status(200)
-      .json(course.length > 0 ? course : { message: "No courses found" });
+      .populate("lessons", "title type content videoUrl duration order isPreview");
+
+    const localized = courses.map((c) => localizeCourse(c, lang));
+
+    res.status(200).json(localized.length > 0 ? localized : { message: "No courses found" });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while retrieving courses" });
+    res.status(500).json({ message: "An error occurred while retrieving courses" });
   }
 };
+//Change Course document to localized version
+const localizeCourse = (course, lang = "en") => {
+  return {
+    _id: course._id,
+    title: course.title[lang],
+    slug: course.slug[lang],
+    shortDescription: course.shortDescription?.[lang],
+    description: course.description?.[lang],
+    category: course.category,
+    instructor: course.instructor,
+    price: course.price,
+    discountPrice: course.discountPrice,
+    isFree: course.isFree,
+    tags: course.tags?.[lang] || [],
+    thumbnailUrl: course.thumbnailUrl,
+    lessons: course.lessons,
+    studentsCount: course.studentsCount,
+    published: course.published,
+    createdAt: course.createdAt,
+    updatedAt: course.updatedAt,
+    lessonsCount: course.lessons?.length || 0,
+  };
+};
 
-//get course by id
+//get course by id with localization
 const getCourseById = async (req, res) => {
   try {
+    const lang = req.query.lang || "en";
+
     const course = await Course.findById(req.params.id)
       .populate("category", "name slug")
       .populate("instructor", "name email profileImage expertise experience")
-      .populate(
-        "lessons",
-        " title type content videoUrl duration order isPreview"
-      );
-    if (!course) {
-      return res.status(404).send("Course not found");
-    }
-    res.status(200).json(course);
+      .populate("lessons", "title type content videoUrl duration order isPreview");
+
+    if (!course) return res.status(404).send("Course not found");
+
+    const localized = localizeCourse(course, lang);
+
+    res.status(200).json(localized);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while retrieving the course" });
+    res.status(500).json({ message: "An error occurred while retrieving the course" });
   }
 };
 
-//get course by instructor id
+//get course by instructor id with localization
 const getCoursesByInstructorId = async (req, res) => {
   try {
+    const lang = req.query.lang || "en";
+
     const courses = await Course.find({ instructor: req.params.id })
       .populate("category", "name slug")
       .populate("instructor", "name email profileImage")
-      .populate(
-        "lessons",
-        " title type content videoUrl duration order isPreview"
-      );
-    res
-      .status(200)
-      .json(courses.length > 0 ? courses : { message: "No courses found" });
+      .populate("lessons", "title type content videoUrl duration order isPreview");
+
+    const localized = courses.map((c) => localizeCourse(c, lang));
+
+    res.status(200).json(localized.length > 0 ? localized : { message: "No courses found" });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "An error occurred while retrieving courses" });
+    res.status(500).json({ message: "An error occurred while retrieving courses" });
   }
 };
+
 
 //delete course by id
 const deleteCourse = async (req, res) => {

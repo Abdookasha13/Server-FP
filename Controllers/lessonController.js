@@ -50,15 +50,34 @@ const createLesson = async (req, res) => {
     });
   }
 };
-
-//-------get AllLessons----------
+// Get all lessons with localization
 const getAllLessons = async (req, res) => {
   try {
-    const lessons = await Lesson.find();
+    const lang = req.query.lang || "en"; // اللغة المطلوبة
+
+    const lessons = await Lesson.find().populate("instructor", "name email profileImage");
+
+   // Localize response
+    const localizedLessons = lessons.map((lesson) => ({
+      _id: lesson._id,
+      course: lesson.course,
+      title: lesson.title[lang],
+      content: lesson.content[lang],
+      type: lesson.type,
+      instructor: lesson.instructor,
+      videoUrl: lesson.videoUrl,
+      duration: lesson.duration,
+      order: lesson.order,
+      isPreview: lesson.isPreview,
+      isApproved: lesson.isApproved,
+      createdAt: lesson.createdAt,
+      updatedAt: lesson.updatedAt,
+    }));
+
     res.status(200).json({
       success: true,
-      count: lessons.length,
-      data: lessons,
+      count: localizedLessons.length,
+      data: localizedLessons,
     });
   } catch (error) {
     res.status(500).json({
@@ -69,31 +88,59 @@ const getAllLessons = async (req, res) => {
   }
 };
 
-//-----------get Lesson by id------------
+//-----------get Lesson by id with localization------------
 const getLessonById = async (req, res) => {
   try {
+    const lang = req.query.lang || "en"; // اللغة المطلوبة
     const lessonId = req.params.id;
-    const lesson = await Lesson.findById(lessonId);
+    
+    //search for the lesson with the teacher's information
+    const lesson = await Lesson.findById(lessonId).populate(
+      "instructor",
+      "name email profileImage"
+    );
 
     if (!lesson) {
       return res.status(404).json({
         success: false,
-        message: "Lesson not found",
+        message: lang === "ar" ? "الدرس غير موجود" : "Lesson not found",
       });
     }
 
+    // Localize response
+    const localizedLesson = {
+      _id: lesson._id,
+      course: lesson.course,
+      title: lesson.title[lang],
+      content: lesson.content[lang],
+      type: lesson.type,
+      instructor: lesson.instructor,
+      videoUrl: lesson.videoUrl,
+      duration: lesson.duration,
+      order: lesson.order,
+      isPreview: lesson.isPreview,
+      isApproved: lesson.isApproved,
+      createdAt: lesson.createdAt,
+      updatedAt: lesson.updatedAt,
+    };
+
     res.status(200).json({
       success: true,
-      data: lesson,
+      data: localizedLesson,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch lesson",
+      message:
+        req.query.lang === "ar"
+          ? "فشل في جلب الدرس"
+          : "Failed to fetch lesson",
       error: error.message,
     });
   }
 };
+
+module.exports = { getLessonById };
 
 //--------delete Lesson by id-------------
 const deleteLessonById = async (req, res) => {

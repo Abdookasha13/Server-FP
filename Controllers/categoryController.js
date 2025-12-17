@@ -1,27 +1,53 @@
 const Category = require("../Models/categoryModel");
 const Course = require("../Models/courseModel");
 
-// جلب كل الكاتيجوريز
-getAllCategories = async (req, res) => {
+const localizeCategory = (category, lang = "en") => {
+  return {
+    _id: category._id,
+    name: category.name[lang],
+    icon: category.icon,
+    coursesCount: category.coursesCount,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+  };
+};
+
+// getAllCategories with localization
+const getAllCategories = async (req, res) => {
   try {
+    const lang = req.query.lang || "en";
     const categories = await Category.find();
-    res.status(200).json(categories);
+
+    const localized = categories.map((cat) =>
+      localizeCategory(cat, lang)
+    );
+
+    res.status(200).json(
+      localized.length > 0
+        ? localized
+        : { message: "No categories found" }
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// جلب كاتيجوري واحدة بالـ ID
-getCategoryById = async (req, res) => {
+
+// getCategoryById with localization
+const getCategoryById = async (req, res) => {
   try {
-    const category = await Category.findById(req.params.id) ;
+    const lang = req.query.lang || "en";
+    const category = await Category.findById(req.params.id);
+
     if (!category)
       return res.status(404).json({ message: "Category not found" });
-    res.status(200).json(category);
+
+    res.status(200).json(localizeCategory(category, lang));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // إنشاء كاتيجوري جديد
 createCategory = async (req, res) => {
@@ -48,22 +74,27 @@ createCategory = async (req, res) => {
 updateCategory = async (req, res) => {
   try {
     // Only instructors or admins can update categories
-    if (
+
+      if (
       !req.user ||
       (req.user.role !== "instructor" && req.user.role !== "admin")
     ) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const { name, icon } = req.body;
+    const updates = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.icon) updates.icon = req.body.icon;
 
     const category = await Category.findByIdAndUpdate(
       req.params.id,
-      { name, icon },
+      updates,
       { new: true, runValidators: true }
     );
+
     if (!category)
       return res.status(404).json({ message: "Category not found" });
+
     res.status(200).json(category);
   } catch (error) {
     res.status(500).json({ message: error.message });
