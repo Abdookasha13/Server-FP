@@ -17,7 +17,6 @@ const CategorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* عدد الكورسات في كل تصنيف */
 CategorySchema.virtual("coursesCount").get(function () {
   return this.courses?.length || 0;
 });
