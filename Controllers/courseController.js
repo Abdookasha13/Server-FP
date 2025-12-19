@@ -68,7 +68,7 @@ const localizeCourse = (course, lang = "en") => {
     price: course.price,
     discountPrice: course.discountPrice,
     isFree: course.isFree,
-    tags: course.tags?.[lang] || [],
+    skillLevel: course.skillLevel,
     thumbnailUrl: course.thumbnailUrl,
     lessons: course.lessons,
     studentsCount: course.studentsCount,
