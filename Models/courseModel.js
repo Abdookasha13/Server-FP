@@ -62,10 +62,10 @@ const courseSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    tags: {
-      en: [{ type: String }],
-      ar: [{ type: String }],
-    },
+    // tags: {
+    //   en: [{ type: String }],
+    //   ar: [{ type: String }],
+    // },
     thumbnailUrl: {
       type: String,
       match: /^https?:\/\/.+/,
@@ -81,12 +81,17 @@ const courseSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
-    rating: { type: Number, default: 0, min: 0, max: 5 },
-    ratingCount: { type: Number, default: 0, min: 0 },
+    // rating: { type: Number, default: 0, min: 0, max: 5 },
+    // ratingCount: { type: Number, default: 0, min: 0 },
     published: {
       type: Boolean,
       default: false,
     },
+  skillLevel: {
+  type: String,
+  enum: ["Beginner", "Intermediate", "Advanced"],
+  default: "Beginner",
+}
   },
   { timestamps: true }
 );
