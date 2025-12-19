@@ -210,17 +210,37 @@ const getWishlist = async (req, res) => {
   res.status(200).json({ wishlist: user.wishlist });
 };
 
-//----------------put user------------
-// const replaceProductById = async (req, res) => {
-//   const id = req.params.id;
-//   const updatedProduct = req.body;
-//   const oldProduct = await Product.findById(id);
-//   const newProduct = await Product.findOneAndReplace(
-//     oldProduct,
-//     updatedProduct
-//   );
-//   res.json(newProduct);
-// };
+//------------- get all instructors (public) -------------
+const getAllInstructors = async (req, res) => {
+  try {
+    const instructors = await User.find({ role: "instructor" })
+      .select("-password");
+
+    res.status(200).json({
+      count: instructors.length,
+      instructors,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching instructors" });
+  }
+};
+
+// -------------------get instructor by id (public)-------------
+const getInstructorById = async (req, res) => {
+  const instructor = await User.findOne({
+    _id: req.params.id,
+    role: "instructor",
+  }).select("-password");
+
+  if (!instructor) {
+    return res.status(404).json({ message: "Instructor not found" });
+  }
+
+  res.json(instructor);
+};
+
+
 
 //-----------export functions-----------
 module.exports = {
@@ -232,5 +252,7 @@ module.exports = {
   updateUser,
   setUserRole,
   addToWishlist,
-  getWishlist
+  getWishlist,
+  getAllInstructors,
+  getInstructorById,
 };

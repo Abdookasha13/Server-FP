@@ -363,6 +363,49 @@ userRoute.patch(
 userRoute.post("/add-to-wishlist", authenticate, userController.addToWishlist);
 userRoute.get("/wishlist", authenticate, userController.getWishlist);
 
+//------- get all instructors (public) --------
+/**
+ * @openapi
+ * /instructors:
+ *   get:
+ *     summary: Get all instructors (public)
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: List of all instructors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: number
+ *                 instructors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *                       expertise:
+ *                         type: string
+ *                       experience:
+ *                         type: number
+ *                       profileImage:
+ *                         type: string
+ */
+userRoute.get("/instructors", userController.getAllInstructors);
+
+// --------------- get instructor by id (public) --------
+userRoute.get("/instructors/:id", userController.getInstructorById);
+
+
 
 //--------------export user route--------
 module.exports = userRoute;
