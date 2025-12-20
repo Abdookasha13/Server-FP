@@ -21,7 +21,7 @@ const createEnrollment = async (req, res) => {
 
     const enrollment = new Enrollment({ user, course });
     await enrollment.save();
-   await courseModel.findByIdAndUpdate(course, { $inc: { studentsCount: 1 } });
+    await courseModel.findByIdAndUpdate(course, { $inc: { studentsCount: 1 } });
 
     const populated = await Enrollment.findById(enrollment._id)
       .populate("user", "name email")
@@ -168,11 +168,13 @@ const getEnrollmentsByStdIdId = async (req, res) => {
       })
     );
 
-    res.status(200).json(
-      enrollmentsWithRatings.length > 0
-        ? enrollmentsWithRatings
-        : { message: "No courses found" }
-    );
+    res
+      .status(200)
+      .json(
+        enrollmentsWithRatings.length > 0
+          ? enrollmentsWithRatings
+          : { message: "No courses found" }
+      );
   } catch (err) {
     console.error("getEnrollmentsByStdIdId error:", err);
     res
@@ -180,6 +182,7 @@ const getEnrollmentsByStdIdId = async (req, res) => {
       .json({ message: "An error occurred while retrieving courses" });
   }
 };
+//هنا بنحدث البروجريس لما يدوس كومبليت على درس
 const updateProgressLesson = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -196,13 +199,13 @@ const updateProgressLesson = async (req, res) => {
       return res.status(404).json({ message: "Enrollment not found" });
     }
 
-    // تأكد أنه الطالب نفسه اللي بيحدّث
     if (enrollment.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    // جيب الـ course عشان نعرف كم lesson فيها
-    const course = await courseModel.findById(enrollment.course).populate("lessons");
+    const course = await courseModel
+      .findById(enrollment.course)
+      .populate("lessons");
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -212,7 +215,6 @@ const updateProgressLesson = async (req, res) => {
       return res.status(400).json({ message: "Course has no lessons" });
     }
 
-    // شوف الـ lesson موجود في الـ progress أم لا
     const lessonProgress = enrollment.progress.find(
       (p) => p.lesson.toString() === lessonId
     );
@@ -228,7 +230,6 @@ const updateProgressLesson = async (req, res) => {
       lessonProgress.completedAt = new Date();
     }
 
-    // احسب الـ progress percentage
     const completedLessons = enrollment.progress.filter(
       (p) => p.completed
     ).length;
@@ -236,7 +237,6 @@ const updateProgressLesson = async (req, res) => {
       (completedLessons / totalLessons) * 100
     );
 
-    // لو اكتمل الـ course، حدّث الـ status
     if (enrollment.progressPercentage === 100) {
       enrollment.status = "completed";
       enrollment.completedDate = new Date();
@@ -258,7 +258,7 @@ const updateProgressLesson = async (req, res) => {
     res.status(500).json({ message: "Error updating progress" });
   }
 };
-
+//هنا بجيب الكورسات اللي الطالب مسجل فيها واللي لسه شغال عليها inprogress
 const getEnrolledCourses = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -283,7 +283,7 @@ const getEnrolledCourses = async (req, res) => {
     res.status(500).json({ message: "Error fetching enrolled courses" });
   }
 };
-
+//هنا بجيب الكورسات اللي الطالب خلصها
 const getCompletedCourses = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -308,7 +308,7 @@ const getCompletedCourses = async (req, res) => {
     res.status(500).json({ message: "Error fetching completed courses" });
   }
 };
-
+//هنا بجيب احصائيات الطالب
 const getStudentStats = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -320,12 +320,13 @@ const getStudentStats = async (req, res) => {
       completed: enrollments.filter((e) => e.status === "completed").length,
       inProgress: enrollments.filter((e) => e.status === "in_progress").length,
       certificates: enrollments.filter((e) => e.certificateUrl).length,
-      avgProgress: enrollments.length > 0 
-        ? Math.round(
-            enrollments.reduce((sum, e) => sum + e.progressPercentage, 0) /
-              enrollments.length
-          )
-        : 0,
+      avgProgress:
+        enrollments.length > 0
+          ? Math.round(
+              enrollments.reduce((sum, e) => sum + e.progressPercentage, 0) /
+                enrollments.length
+            )
+          : 0,
     };
 
     res.status(200).json(stats);
@@ -336,12 +337,12 @@ const getStudentStats = async (req, res) => {
 };
 
 module.exports = {
-  createEnrollment, 
+  createEnrollment,
   getAllEnrollments,
   getEnrollmentById,
   updateEnrollment,
   deleteEnrollmentById,
-  getEnrollmentsByStdIdId ,
+  getEnrollmentsByStdIdId,
   updateProgressLesson,
   getEnrolledCourses,
   getCompletedCourses,

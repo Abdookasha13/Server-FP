@@ -18,5 +18,6 @@ reviewRoute.get(
   reviewController.getCourseRatingStats
 );
 
+reviewRoute.get("/my-reviews", authenticate, reviewController.getMyReviews);
 
 module.exports = reviewRoute;
