@@ -177,7 +177,27 @@ enrollmentRoute.delete(
   authenticate,
   enrollmentController.deleteEnrollmentById
 );
+enrollmentRoute.get(
+  "/myenrollments/completed",
+  authenticate,
+  enrollmentController.getCompletedCourses
+);
+enrollmentRoute.put(
+  "/enrollments/:enrollmentId/progress",
+  authenticate,
+  enrollmentController.updateProgressLesson
+);
+enrollmentRoute.get(
+  "/myenrollments/stats",
+  authenticate,
+  enrollmentController.getStudentStats
+);
+enrollmentRoute.get(
+  "/myenrollments/enrolled",
+  authenticate,
+  enrollmentController.getEnrolledCourses
+);
 
-enrollmentRoute.get("/myenrollments/:stdId",authenticate, enrollmentController.getEnrollmentsByStdIdId);
+// enrollmentRoute.get("/myenrollments/:stdId",authenticate, enrollmentController.getEnrollmentsByStdIdId);
 
 module.exports = enrollmentRoute;

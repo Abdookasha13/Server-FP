@@ -205,7 +205,7 @@ const getWishlist = async (req, res) => {
   const userId = req.user.id;
 
   const user = await User.findById(userId)
-    .populate("wishlist");  // عشان يرجّع البيانات بدل IDs
+    .populate("wishlist");  
 
   res.status(200).json({ wishlist: user.wishlist });
 };

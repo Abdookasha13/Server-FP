@@ -13,6 +13,11 @@ const EnrollmentSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["in_progress", "completed"],
+      default: "in_progress",
+    },
     progress: [
       {
         lesson: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
@@ -25,6 +30,13 @@ const EnrollmentSchema = new mongoose.Schema(
         },
       },
     ],
+    progressPercentage: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    completedDate: Date,
     certificateUrl: String,
   },
   { timestamps: true }

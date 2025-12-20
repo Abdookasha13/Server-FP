@@ -122,3 +122,22 @@ exports.getCourseRatingStats = async (req, res) => {
     });
   }
 };
+// ------- Get My Reviews --------
+exports.getMyReviews = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const reviews = await Review.find({ user: userId })
+      .select("course rating");
+
+    res.status(200).json({
+      success: true,
+      data: reviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

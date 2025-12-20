@@ -81,8 +81,8 @@ const courseSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
-    // rating: { type: Number, default: 0, min: 0, max: 5 },
-    // ratingCount: { type: Number, default: 0, min: 0 },
+    rating: { type: Number, default: 0, min: 0, max: 5 },
+    ratingCount: { type: Number, default: 0, min: 0 },
     published: {
       type: Boolean,
       default: false,

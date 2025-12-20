@@ -21,7 +21,7 @@ const createEnrollment = async (req, res) => {
 
     const enrollment = new Enrollment({ user, course });
     await enrollment.save();
-   await courseModel.findByIdAndUpdate(course, { $inc: { studentsCount: 1 } });
+    await courseModel.findByIdAndUpdate(course, { $inc: { studentsCount: 1 } });
 
     const populated = await Enrollment.findById(enrollment._id)
       .populate("user", "name email")
@@ -168,11 +168,13 @@ const getEnrollmentsByStdIdId = async (req, res) => {
       })
     );
 
-    res.status(200).json(
-      enrollmentsWithRatings.length > 0
-        ? enrollmentsWithRatings
-        : { message: "No courses found" }
-    );
+    res
+      .status(200)
+      .json(
+        enrollmentsWithRatings.length > 0
+          ? enrollmentsWithRatings
+          : { message: "No courses found" }
+      );
   } catch (err) {
     console.error("getEnrollmentsByStdIdId error:", err);
     res
@@ -180,11 +182,169 @@ const getEnrollmentsByStdIdId = async (req, res) => {
       .json({ message: "An error occurred while retrieving courses" });
   }
 };
+//هنا بنحدث البروجريس لما يدوس كومبليت على درس
+const updateProgressLesson = async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const { enrollmentId } = req.params;
+    const { lessonId } = req.body;
+
+    if (!isValidId(enrollmentId) || !isValidId(lessonId)) {
+      return res.status(400).json({ message: "Invalid IDs" });
+    }
+
+    const enrollment = await Enrollment.findById(enrollmentId);
+    if (!enrollment) {
+      return res.status(404).json({ message: "Enrollment not found" });
+    }
+
+    if (enrollment.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const course = await courseModel
+      .findById(enrollment.course)
+      .populate("lessons");
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    const totalLessons = course.lessons.length;
+    if (totalLessons === 0) {
+      return res.status(400).json({ message: "Course has no lessons" });
+    }
+
+    const lessonProgress = enrollment.progress.find(
+      (p) => p.lesson.toString() === lessonId
+    );
+
+    if (!lessonProgress) {
+      enrollment.progress.push({
+        lesson: lessonId,
+        completed: true,
+        completedAt: new Date(),
+      });
+    } else {
+      lessonProgress.completed = true;
+      lessonProgress.completedAt = new Date();
+    }
+
+    const completedLessons = enrollment.progress.filter(
+      (p) => p.completed
+    ).length;
+    enrollment.progressPercentage = Math.round(
+      (completedLessons / totalLessons) * 100
+    );
+
+    if (enrollment.progressPercentage === 100) {
+      enrollment.status = "completed";
+      enrollment.completedDate = new Date();
+    }
+
+    await enrollment.save();
+
+    const updated = await Enrollment.findById(enrollmentId)
+      .populate("user", "name email")
+      .populate("course", "title description")
+      .populate("progress.lesson", "title");
+
+    res.status(200).json({
+      message: "Progress updated successfully",
+      enrollment: updated,
+    });
+  } catch (err) {
+    console.error("updateProgressLesson error:", err);
+    res.status(500).json({ message: "Error updating progress" });
+  }
+};
+//هنا بجيب الكورسات اللي الطالب مسجل فيها واللي لسه شغال عليها inprogress
+const getEnrolledCourses = async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const enrollments = await Enrollment.find({
+      user: req.user.id,
+      status: "in_progress",
+    })
+      .populate({
+        path: "course",
+        select: "title description thumbnailUrl instructor duration",
+        populate: {
+          path: "instructor",
+          select: "name profileImage",
+        },
+      })
+      .populate("progress.lesson", "title");
+
+    res.status(200).json(enrollments);
+  } catch (err) {
+    console.error("getEnrolledCourses error:", err);
+    res.status(500).json({ message: "Error fetching enrolled courses" });
+  }
+};
+//هنا بجيب الكورسات اللي الطالب خلصها
+const getCompletedCourses = async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const enrollments = await Enrollment.find({
+      user: req.user.id,
+      status: "completed",
+    })
+      .populate({
+        path: "course",
+        select: "title description thumbnailUrl instructor",
+        populate: {
+          path: "instructor",
+          select: "name profileImage",
+        },
+      })
+      .sort({ completedDate: -1 });
+
+    res.status(200).json(enrollments);
+  } catch (err) {
+    console.error("getCompletedCourses error:", err);
+    res.status(500).json({ message: "Error fetching completed courses" });
+  }
+};
+//هنا بجيب احصائيات الطالب
+const getStudentStats = async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const enrollments = await Enrollment.find({ user: req.user.id });
+
+    const stats = {
+      totalEnrolled: enrollments.length,
+      completed: enrollments.filter((e) => e.status === "completed").length,
+      inProgress: enrollments.filter((e) => e.status === "in_progress").length,
+      certificates: enrollments.filter((e) => e.certificateUrl).length,
+      avgProgress:
+        enrollments.length > 0
+          ? Math.round(
+              enrollments.reduce((sum, e) => sum + e.progressPercentage, 0) /
+                enrollments.length
+            )
+          : 0,
+    };
+
+    res.status(200).json(stats);
+  } catch (err) {
+    console.error("getStudentStats error:", err);
+    res.status(500).json({ message: "Error fetching stats" });
+  }
+};
+
 module.exports = {
-  createEnrollment, 
+  createEnrollment,
   getAllEnrollments,
   getEnrollmentById,
   updateEnrollment,
   deleteEnrollmentById,
-  getEnrollmentsByStdIdId 
+  getEnrollmentsByStdIdId,
+  updateProgressLesson,
+  getEnrolledCourses,
+  getCompletedCourses,
+  getStudentStats,
 };
