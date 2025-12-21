@@ -362,6 +362,7 @@ userRoute.patch(
 
 userRoute.post("/add-to-wishlist", authenticate, userController.addToWishlist);
 userRoute.get("/wishlist", authenticate, userController.getWishlist);
+userRoute.delete("/remove-from-wishlist/:courseId", authenticate, userController.removeFromWishlist);
 
 //------- get all instructors (public) --------
 /**

@@ -201,11 +201,45 @@ const addToWishlist = async (req, res) => {
   }
 };
 
+const removeFromWishlist = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { courseId } = req.params;
+    const user = await User.findById(userId);
+
+    if (user.wishlist.includes(courseId)) {
+      user.wishlist = user.wishlist.filter((id) => id.toString() !== courseId);
+      await user.save();
+    }
+
+    return res.status(200).json({ message: "Course removed from wishlist" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 const getWishlist = async (req, res) => {
   const userId = req.user.id;
 
   const user = await User.findById(userId)
-    .populate("wishlist");  
+    .populate("wishlist")
+  .populate({
+  path: "wishlist",
+  populate: [
+    {
+      path: "instructor",
+      select: "name profileImage",
+    },
+    {
+      path: "lessons",
+      select: "duration",
+    },
+    {
+      path: "category",
+      select: "name",
+    },
+  ],
+});
 
   res.status(200).json({ wishlist: user.wishlist });
 };
@@ -255,4 +289,5 @@ module.exports = {
   getWishlist,
   getAllInstructors,
   getInstructorById,
+  removeFromWishlist
 };
