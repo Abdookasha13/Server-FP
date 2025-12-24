@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 //-----import routes---
+const passport = require("passport");
 const userRoute = require("./Routes/userRoute");
 const courseRoute = require("./Routes/courseRoute");
 const lessonRoute = require("./Routes/lessonRoute");
@@ -15,6 +16,7 @@ const cartRoute = require("./Routes/cartRoute");
 const reviewRoute = require("./Routes/reviewsRoute");
 const paymentRoute = require("./Routes/paymentRoute");
 const aiRoute = require("./Routes/aiRoute");
+require("./Config/passport");
 //----------cors------------
 const cors = require("cors");
 //------------ swagger -----------
@@ -31,13 +33,14 @@ app.use(cors());
 
 //------------connect database--------------
 mongoose
-  .connect(
-    "mongodb+srv://AbdoOkasha:DPDp7kqFUTOahhjj@final-project.dpoef6d.mongodb.net/E-learning"
-  )
-  .then(() => console.log("Database connected"))
-  .catch((err) => console.error(err));
+.connect(
+  "mongodb+srv://AbdoOkasha:DPDp7kqFUTOahhjj@final-project.dpoef6d.mongodb.net/E-learning"
+)
+.then(() => console.log("Database connected"))
+.catch((err) => console.error(err));
 
 //----------routes------------
+app.use(passport.initialize());
 app.use(userRoute);
 app.use(lessonRoute);
 app.use(courseRoute);

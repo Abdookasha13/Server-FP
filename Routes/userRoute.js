@@ -3,6 +3,8 @@ const userRoute = express.Router();
 const userController = require("../Controllers/userController");
 const authenticate = require("../middleware/authenticationMiddleware");
 const authoriz = require("../middleware/authorizationMiddleware");
+const FRONT_URL = process.env.FRONT_URL || "http://localhost:5173";
+const passport = require("passport");
 
 /**
  * @openapi
@@ -405,6 +407,19 @@ userRoute.get("/instructors", userController.getAllInstructors);
 
 // --------------- get instructor by id (public) --------
 userRoute.get("/instructors/:id", userController.getInstructorById);
+
+// ----------------sign with google strategy -------------
+userRoute.get("/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+userRoute.get("/auth/google/callback",
+  passport.authenticate("google", { session: false }),
+  (req, res) => {
+    const token = userController.generateToken(req.user);
+    res.redirect(`${FRONT_URL}/google-success?token=${token}`);
+  }
+);
 
 
 

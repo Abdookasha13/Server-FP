@@ -9,6 +9,7 @@ function generateToken(user) {
       id: user._id,
       email: user.email,
       role: user.role,
+      name: user.name,
     },
     //-------secret---------
     process.env.JWT_SECRET
@@ -289,5 +290,6 @@ module.exports = {
   getWishlist,
   getAllInstructors,
   getInstructorById,
-  removeFromWishlist
+  removeFromWishlist,
+  generateToken,
 };
