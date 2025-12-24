@@ -46,11 +46,13 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     wishlist: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Course",
-  }
-],
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date },
   },
   { timestamps: true }
 );

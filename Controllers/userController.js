@@ -58,8 +58,8 @@ const login = async (req, res) => {
     }
 
     console.log("Login request:", req.body);
-const user = await User.findOne({ email });
-console.log("User from DB:", user);
+    const user = await User.findOne({ email });
+    console.log("User from DB:", user);
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
@@ -184,7 +184,7 @@ const setUserRole = async (req, res) => {
 
 const addToWishlist = async (req, res) => {
   try {
-    const userId = req.user.id;   // جايّ من الـ auth middleware
+    const userId = req.user.id; // جايّ من الـ auth middleware
     const { courseId } = req.body;
 
     const user = await User.findById(userId);
@@ -224,23 +224,23 @@ const getWishlist = async (req, res) => {
 
   const user = await User.findById(userId)
     .populate("wishlist")
-  .populate({
-  path: "wishlist",
-  populate: [
-    {
-      path: "instructor",
-      select: "name profileImage",
-    },
-    {
-      path: "lessons",
-      select: "duration",
-    },
-    {
-      path: "category",
-      select: "name",
-    },
-  ],
-});
+    .populate({
+      path: "wishlist",
+      populate: [
+        {
+          path: "instructor",
+          select: "name profileImage",
+        },
+        {
+          path: "lessons",
+          select: "duration",
+        },
+        {
+          path: "category",
+          select: "name",
+        },
+      ],
+    });
 
   res.status(200).json({ wishlist: user.wishlist });
 };
@@ -248,8 +248,9 @@ const getWishlist = async (req, res) => {
 //------------- get all instructors (public) -------------
 const getAllInstructors = async (req, res) => {
   try {
-    const instructors = await User.find({ role: "instructor" })
-      .select("-password");
+    const instructors = await User.find({ role: "instructor" }).select(
+      "-password"
+    );
 
     res.status(200).json({
       count: instructors.length,
@@ -275,7 +276,93 @@ const getInstructorById = async (req, res) => {
   res.json(instructor);
 };
 
+// --------------------send email------------------
+const nodemailer = require("nodemailer");
 
+const sendEmail = async ({ to, subject, text }) => {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject,
+    text,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+module.exports = sendEmail;
+
+// ----------------forget password-------------------
+const crypto = require("crypto");
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  user.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  await user.save();
+
+  const resetUrl = `${process.env.FRONT_URL}/reset/password/${resetToken}`;
+
+  const message = `You requested a password reset. Please make a PUT request to: \n\n ${resetUrl}`;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      text: message,
+    });
+    res.status(200).json({ message: "Email sent successfully" });
+  } catch (err) {
+    console.error(err);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    res.status(500).json({ message: "Email could not be sent" });
+  }
+};
+
+// ----------------reset password-------------------
+const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!password)
+    return res.status(400).json({ message: "Password is required" });
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user)
+    return res.status(400).json({ message: "Invalid or expired token" });
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  res.status(200).json({ message: "Password reset successful" });
+};
 
 //-----------export functions-----------
 module.exports = {
@@ -292,4 +379,6 @@ module.exports = {
   getInstructorById,
   removeFromWishlist,
   generateToken,
+  forgotPassword,
+  resetPassword,
 };

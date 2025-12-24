@@ -364,7 +364,11 @@ userRoute.patch(
 
 userRoute.post("/add-to-wishlist", authenticate, userController.addToWishlist);
 userRoute.get("/wishlist", authenticate, userController.getWishlist);
-userRoute.delete("/remove-from-wishlist/:courseId", authenticate, userController.removeFromWishlist);
+userRoute.delete(
+  "/remove-from-wishlist/:courseId",
+  authenticate,
+  userController.removeFromWishlist
+);
 
 //------- get all instructors (public) --------
 /**
@@ -409,11 +413,13 @@ userRoute.get("/instructors", userController.getAllInstructors);
 userRoute.get("/instructors/:id", userController.getInstructorById);
 
 // ----------------sign with google strategy -------------
-userRoute.get("/auth/google",
+userRoute.get(
+  "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-userRoute.get("/auth/google/callback",
+userRoute.get(
+  "/auth/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
     const token = userController.generateToken(req.user);
@@ -421,7 +427,11 @@ userRoute.get("/auth/google/callback",
   }
 );
 
+// ------------------forget password-------------------
+userRoute.post("/forgot-password", userController.forgotPassword);
 
+// ------------------reset password-------------------
+userRoute.post("/reset-password/:token", userController.resetPassword);
 
 //--------------export user route--------
 module.exports = userRoute;
