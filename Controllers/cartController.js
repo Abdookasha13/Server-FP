@@ -24,22 +24,48 @@ const formatDuration = (lessons) => {
   return `${hours}h ${minutes}m`;
 };
 // ---------------- Helper to format cart items ----------------
+// const formatCartItems = (cart) => {
+//   return cart.items.map((item) => {
+//     const course = item.course;
+//     const courseDuration = formatDuration(course.lessons);
+//     return {
+//       courseId: course._id,
+//       title: course.title,
+//       price: course.price,
+//       discountPrice: course.discountPrice,
+//       thumbnailUrl: course.thumbnailUrl,
+//       insName: course.instructor?.name || "Unknown Instructor",
+//       lessonsCount: course.lessons?.length || 0,
+//       courseDuration: courseDuration,
+//       quantity: item.quantity,
+//     };
+//   });
+// };
+
 const formatCartItems = (cart) => {
-  return cart.items.map((item) => {
-    const course = item.course;
-    const courseDuration = formatDuration(course.lessons);
-    return {
-      courseId: course._id,
-      title: course.title,
-      price: course.price,
-      discountPrice: course.discountPrice,
-      thumbnailUrl: course.thumbnailUrl,
-      insName: course.instructor?.name || "Unknown Instructor",
-      lessonsCount: course.lessons?.length || 0,
-      courseDuration: courseDuration,
-      quantity: item.quantity,
-    };
-  });
+  if (!cart || !cart.items) return [];
+
+  return cart.items
+    .filter((item) => item.course)
+    .map((item) => {
+      const course = item.course;
+
+      const lessons = Array.isArray(course.lessons) ? course.lessons : [];
+
+      const courseDuration = formatDuration(lessons);
+
+      return {
+        courseId: course._id,
+        title: course.title,
+        price: course.price,
+        discountPrice: course.discountPrice,
+        thumbnailUrl: course.thumbnailUrl,
+        insName: course.instructor?.name || "Unknown Instructor",
+        lessonsCount: lessons.length,
+        courseDuration,
+        quantity: item.quantity,
+      };
+    });
 };
 
 // ---------------- Add Course to Cart ----------------
@@ -151,4 +177,3 @@ exports.clearCart = async (req, res) => {
     });
   }
 };
-
