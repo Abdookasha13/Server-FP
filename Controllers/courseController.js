@@ -1,5 +1,6 @@
+const categoryModel = require("../Models/categoryModel");
 const Course = require("../Models/courseModel");
-require("../Models/categoryModel");
+
 require("../Models/userModel");
 
 // add new course
@@ -17,6 +18,10 @@ const addCourse = async (req, res) => {
     const data = { ...req.body, instructor: req.user.id };
     const course = new Course(data);
     await course.save();
+    await categoryModel.findByIdAndUpdate(course.category, {
+      $push: { courses: course._id },
+    });
+
     res.status(201).json({ message: "Course added successfully!", course });
   } catch (err) {
     if (err.name === "ValidationError") {
@@ -149,6 +154,9 @@ const deleteCourse = async (req, res) => {
     }
 
     await Course.findByIdAndDelete(req.params.id);
+    await categoryModel.findByIdAndUpdate(course.category, {
+      $pull: { courses: course._id },
+    });
     res.status(200).send("Course deleted successfully!");
   } catch (err) {
     res
@@ -204,6 +212,24 @@ const updateCourse = async (req, res) => {
   }
 };
 
+const getCoursesByCatId = async (req, res) => {
+  try {
+    const lang = req.query.lang || "en";
+    const courses = await Course.find({ category: req.params.catId })
+      .populate("category", "name slug")
+      .populate("instructor", "name email profileImage");
+    const localized = courses.map((c) => localizeCourse(c, lang));
+
+    res.status(200).json({ data: localized });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        message: err.message || "An error occurred while fetchingcourses",
+      });
+  }
+};
+
 module.exports = {
   addCourse,
   getAllCourses,
@@ -211,4 +237,5 @@ module.exports = {
   deleteCourse,
   updateCourse,
   getCoursesByInstructorId,
+  getCoursesByCatId,
 };

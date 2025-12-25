@@ -280,5 +280,6 @@ courseRoute.patch(
   authoriz("instructor", "admin"),
   courseCtrl.updateCourse
 );
+courseRoute.get("/category/:catId/courses", courseCtrl.getCoursesByCatId);
 
 module.exports = courseRoute;

@@ -16,22 +16,19 @@ const localizeCategory = (category, lang = "en") => {
 const getAllCategories = async (req, res) => {
   try {
     const lang = req.query.lang || "en";
-    const categories = await Category.find().lean();
+    const categories = await Category.find().populate("courses");
 
-    const localized = categories.map((cat) =>
-      localizeCategory(cat, lang)
-    );
+    const localized = categories.map((cat) => localizeCategory(cat, lang));
 
-    res.status(200).json(
-      localized.length > 0
-        ? localized
-        : { message: "No categories found" }
-    );
+    res
+      .status(200)
+      .json(
+        localized.length > 0 ? localized : { message: "No categories found" }
+      );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // getCategoryById with localization
 const getCategoryById = async (req, res) => {
@@ -47,7 +44,6 @@ const getCategoryById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // إنشاء كاتيجوري جديد
 createCategory = async (req, res) => {
@@ -75,7 +71,7 @@ updateCategory = async (req, res) => {
   try {
     // Only instructors or admins can update categories
 
-      if (
+    if (
       !req.user ||
       (req.user.role !== "instructor" && req.user.role !== "admin")
     ) {
@@ -86,11 +82,10 @@ updateCategory = async (req, res) => {
     if (req.body.name) updates.name = req.body.name;
     if (req.body.icon) updates.icon = req.body.icon;
 
-    const category = await Category.findByIdAndUpdate(
-      req.params.id,
-      updates,
-      { new: true, runValidators: true }
-    );
+    const category = await Category.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!category)
       return res.status(404).json({ message: "Category not found" });
