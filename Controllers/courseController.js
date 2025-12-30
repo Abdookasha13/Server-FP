@@ -177,7 +177,7 @@ const updateCourse = async (req, res) => {
   const updates = Object.fromEntries(
     Object.entries(req.body)
       .filter(([key]) => !blockedFields.includes(key))
-      .filter(([, value]) => value !== undefined && value !== null)
+      .filter(([, value]) => value !== undefined) 
   );
 
   const ignoredFields = Object.keys(req.body).filter((key) =>
