@@ -64,6 +64,7 @@ const formatCartItems = (cart) => {
         lessonsCount: lessons.length,
         courseDuration,
         quantity: item.quantity,
+        skillLevel: course.skillLevel,
       };
     });
 };
