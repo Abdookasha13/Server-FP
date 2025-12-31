@@ -133,3 +133,85 @@ ${servicesText}
   }
 };
 
+export const generateQuiz = async (req, res) => {
+  try {
+    const { lessonContent, lessonTitle } = req.body;
+    const lang = req.body.lang || "en";
+
+    if (!lessonContent) {
+      return res.status(400).json({ message: "Lesson content is required" });
+    }
+
+    const prompt =
+      lang === "ar"
+        ? `
+اعمل 5 أسئلة اختيار من متعدد (اختر إجابة واحدة صحيحة فقط) من المحتوى ده:
+
+"${lessonContent}"
+
+اعمل الـ JSON بالضبط بالصيغة دي:
+{
+  "questions": [
+    {
+      "question": "السؤال هنا؟",
+      "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+      "correctAnswer": 0,
+      "explanation": "شرح الإجابة الصحيحة"
+    }
+  ]
+}
+
+ملاحظات مهمة:
+- correctAnswer هو رقم الخيار الصحيح (0, 1, 2, 3)
+- اخترع أسئلة منطقية من المحتوى
+- الشرح يكون واضح ومفيد
+`
+        : `
+Create 5 multiple-choice questions from the following lesson content:
+
+"${lessonContent}"
+
+Return a JSON in this exact format:
+{
+  "questions": [
+    {
+      "question": "Question here?",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correctAnswer": 0,
+      "explanation": "Explanation of the correct answer"
+    }
+  ]
+}
+
+Important:
+- correctAnswer is the index of the correct option (0, 1, 2, 3)
+- Make questions directly from the content
+- Explanations should be clear and helpful
+`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.7,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const responseText = completion.choices[0].message.content;
+
+    // استخرج JSON من الـ response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return res.status(500).json({ message: "Failed to parse quiz data" });
+    }
+
+    const quizData = JSON.parse(jsonMatch[0]);
+
+    res.json({
+      success: true,
+      quiz: quizData.questions,
+      lessonTitle,
+    });
+  } catch (err) {
+    console.error("Quiz generation error:", err);
+    res.status(500).json({ message: "Error generating quiz" });
+  }
+};
