@@ -33,14 +33,17 @@ app.use(cors());
 
 //------------connect database--------------
 mongoose
-.connect(
-  "mongodb+srv://AbdoOkasha:DPDp7kqFUTOahhjj@final-project.dpoef6d.mongodb.net/E-learning"
-)
+.connect(process.env.mongoURL)
 .then(() => console.log("Database connected"))
 .catch((err) => console.error(err));
 
 //----------routes------------
 app.use(passport.initialize());
+app.get("/", (req, res) => {
+  res.json({
+    message: "API is running"
+  });
+});
 app.use(userRoute);
 app.use(lessonRoute);
 app.use(courseRoute);
@@ -80,6 +83,5 @@ const swaggerSpec = swaggerJsDoc({
 app.use("/swaggerApis", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //----------------listen on port-------------
-app.listen(1911, () => {
-  console.log("server connected on port 1911");
-});
+
+module.exports = app;
