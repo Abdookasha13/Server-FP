@@ -66,7 +66,7 @@ const swaggerSpec = swaggerJsDoc({
       title: "E-learning",
       version: "1.0.0",
     },
-    servers: [{ url: "http://localhost:1911" }],
+    servers: [{ url: "https://server-fp-git-main-abdookasha13s-projects.vercel.app/" }],
     components: {
       securitySchemes: {
         bearerAuth: {
